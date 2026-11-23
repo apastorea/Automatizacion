@@ -37,3 +37,13 @@
 - Desviación de salida previa al escalón: máximos 8.20mV predictor y 15.22mV actual, originados en error inicial de estimación.
 - Nota: la norma de error del actual en k=0 ya incluye la corrección con y[0]; no comparar directamente la primera muestra con el predictor.
 - Pendiente: análisis de E2 y exportación de métricas directamente desde MATLAB; validación física en PSoC y Rigol.
+
+## 2026-11-23 — Comparación predictores E1 y E2 (modelo nominal)
+
+- Recibida y analizada imagen `lab7_prediccion_E2.png` del usuario. Aún no se incorporó el PNG al repositorio.
+- Comparación numérica reproduciendo `simular_lab7.m` con Ts=2 ms, r=50 mV a 20 ms, y las mismas condiciones iniciales.
+- E1 → E2: modulo polos 0.472 → 0.224; error norm <1e-4 persistente desde 14 ms → 10 ms (mejora 4 ms = 28.6 %).
+- Sobrepasamiento 15.293 % → 15.614 %; max salida 57.646 mV → 57.807 mV; ts±2 % ambos 46 ms; t_p desde escalon 22 → 20 ms.
+- Max salida antes del escalon 8.197 mV → 5.515 mV; max mando 97.981 mV → 99.069 mV; mando inicial en ambos 25.575 mV.
+- La rapidez del observador reduce el transitorio por error inicial, pero no cambia los polos de control; no afirmar mejor seguimiento universal.
+- Falta revisar grafica `lab7_actual_E2.png`, y medir efecto de ruido y hardware.

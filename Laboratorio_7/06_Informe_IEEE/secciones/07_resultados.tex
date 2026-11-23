@@ -6,7 +6,7 @@ $T_s=\SI{2}{\milli\second}$ y referencia de \SI{50}{\milli\volt}
 aplicada en $t=\SI{20}{\milli\second}$.
 La salida $y[k]$ es el único estado medido que se realimentaría físicamente.
 Los valores de esta sección son \emph{exclusivamente simulaciones}, no
-mediciones en PSoC. Las gráficas E2 permanecen pendientes de discusión.
+mediciones en PSoC. La curva de predicción E2 también fue analizada; falta contrastar la de estado actual E2.
 
 \begin{table}[t]
 \centering
@@ -18,7 +18,7 @@ mediciones en PSoC. Las gráficas E2 permanecen pendientes de discusión.
 Observador & Polos & MATLAB & PSoC \\
 \midrule
 Predicción & E1 & Analizado & Pendiente \\
-Predicción & E2 & Ejecutado & Pendiente \\
+Predicción & E2 & Analizado & Pendiente \\
 Actual & E1 & Analizado & Pendiente \\
 Actual & E2 & Ejecutado & Pendiente \\
 \bottomrule
@@ -72,6 +72,55 @@ no debe compararse directamente la altura inicial de las curvas
 como si representaran el mismo instante de cálculo.
 En condiciones ideales, ambas arquitecturas presentan convergencia
 del error; resta estudiar ruido, cuantización y retardos reales.
+
+\subsection{Efecto de acelerar el predictor: E1 frente a E2}
+Se mantuvo $K$ fijo y se modificaron exclusivamente los polos del
+observador: E1 ($0.4\pm j0.25$, módulo $0.472$) y
+E2 ($0.2\pm j0.10$, módulo $0.224$). Las
+condiciones iniciales, el escalón y el muestreo fueron idénticos.
+La Tabla~\ref{tab:pred_e1_e2} registra las métricas reproducidas con
+el algoritmo discreto a partir del modelo nominal.
+
+\begin{table}[t]
+\centering
+\caption{Predictores E1 y E2: simulación nominal.}
+\label{tab:pred_e1_e2}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Magnitud & E1 & E2 \\
+\midrule
+Máximo salida (\si{\milli\volt}) & 57.646 & 57.807 \\
+Sobrepasamiento (\%) & 15.293 & 15.614 \\
+Pico desde escalón (\si{\milli\second}) & 22 & 20 \\
+Establecimiento $\pm2\%$ (\si{\milli\second}) & 46 & 46 \\
+$\|e\|<10^{-4}$, persistente (\si{\milli\second}) & 14 & 10 \\
+Máx.\ salida previa al escalón (\si{\milli\volt}) & 8.197 & 5.515 \\
+Máx.\ $u$ (\si{\milli\volt}) & 97.981 & 99.069 \\
+$u[0]$ (\si{\milli\volt}) & 25.575 & 25.575 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El error de estimación converge por debajo de $10^{-4}$ y permanece
+allí desde \SI{14}{\milli\second} en E1, frente a
+\SI{10}{\milli\second} en E2. La reducción es de aproximadamente
+$28.6\%$ para este umbral y condiciones iniciales; no implica
+una reducción idéntica de todos los tiempos característicos.
+El error más breve reduce la excursión de salida previa
+al escalón, de \SI{8.197}{\milli\volt} a
+\SI{5.515}{\milli\volt}.
+
+Por el principio de separación, los polos del controlador
+$\mathrm{eig}(A-BK)$ no cambian al variar los polos del estimador;
+por tanto, la respuesta a la referencia una vez desaparecido el
+error de estimación es esencialmente la misma. El sobrepasamiento
+incluso aumenta levemente (de $15.293\%$ a $15.614\%$), mientras
+que el máximo de control crece de \SI{97.981}{\milli\volt}
+a \SI{99.069}{\milli\volt}. Estos valores no permiten afirmar que
+el observador más rápido mejora universalmente el transitorio.
+Resta evaluar el ruido de medición, que podría afectar
+más a ganancias de corrección elevadas.
 
 \subsection{Ensayos experimentales pendientes}
 Para cada diseño deberán medirse los tiempos de establecimiento,
