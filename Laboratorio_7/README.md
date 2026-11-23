@@ -41,4 +41,4 @@ Consultar `01_Modelado_MATLAB/DERIVACION_MODELO_NOMINAL.md`. Ejecutar `validar_n
 
 ## Etapa 2 — Métricas de las cuatro simulaciones
 
-Ejecutar `01_Modelado_MATLAB/analizar_metricas_lab7.m` para generar `05_Resultados/metricas_nominales_lab7.csv`. **Atención:** el escalón se aplica a `t=22ms` según el código vigente; las tablas anteriores que indicaban 20ms fueron corregidas. Ver `05_Resultados/COMPARATIVA_CUATRO_CASOS.md`.
+Ejecutar `01_Modelado_MATLAB/analizar_metricas_lab7.m` para generar `05_Resultados/metricas_nominales_lab7.csv`. **Verificado con MATLAB:** escalón a `t=20ms` (k=11, t=(k-1)Ts). La revisión intermedia que indicaba 22ms contenía un error; el análisis e informe fueron rectificados. Ver `05_Resultados/COMPARATIVA_CUATRO_CASOS.md`.

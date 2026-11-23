@@ -48,7 +48,7 @@
 - La rapidez del observador reduce el transitorio por error inicial, pero no cambia los polos de control; no afirmar mejor seguimiento universal.
 - Falta revisar grafica `lab7_actual_E2.png`, y medir efecto de ruido y hardware.
 
-## 2026-11-23 — Cierre nominal de los cuatro casos y errata metodologica
+## 2026-11-23 — Cierre nominal de los cuatro casos y errata metodologica (OBSOLETO: CORREGIDO MAS ABAJO)
 
 - Recibida grafica `lab7_actual_E2.png` y completada la inspeccion de las cuatro capturas de MATLAB.
 - Se detecto que `r(k)=0.05*(k>10)` aplica el escalon en **t=22ms** y no t=20ms. Se recalcularon todas las métricas utilizando esa temporizacion y la implementacion de `simular_lab7.m`; cifras preliminares anteriores sustituidas.
@@ -59,3 +59,14 @@
 - La norma del error converge <1e-4 persistentemente a 14,14,10,8ms respectivamente desde t=0. Las normas de estimador actual contienen la correccion con y[k] dentro de la muestra.
 - Se incorpora `01_Modelado_MATLAB/analizar_metricas_lab7.m` para obtener las metricas y CSV directamente en MATLAB del usuario.
 - **Sigue pendiente** validacion fisica ADC/DAC, planta, timer y respuesta ante ruido/perturbaciones; coeficientes NO aprobados para hardware.
+
+## 2026-11-23 — Rectificación verificada con MATLAB (VERSIÓN VIGENTE)
+
+- El usuario ejecutó el script `analizar_metricas_lab7.m` en MATLAB R2026b y compartió la tabla y el CSV generado.
+- **Escalón correcto: 20 ms.** La expresión `r(k)=0.05*(k>10)` se activa en k=11, y `t=(k-1)Ts=10*2ms=20ms`. La entrada anterior que afirmó 22ms es errónea; sus valores se anulan.
+- Predictor E1: pico 57.646299mV, Mp 15.292598%, tp 22ms, ts2 46ms, max mando 97.981136mV.
+- Actual E1: pico 57.631460mV, Mp 15.262920%, tp 22ms, ts2 48ms, max mando 97.882034mV.
+- Predictor E2: pico 57.807208mV, Mp 15.614416%, tp 20ms, ts2 46ms, max mando 99.068980mV.
+- Actual E2: pico 57.809070mV, Mp 15.618140%, tp 20ms, ts2 46ms, max mando 99.080638mV.
+- Convergencia error <1e-4 persistente: P-E1 14ms, A-E1 14ms, P-E2 10ms, A-E2 8ms.
+- Todas las cifras son simulaciones nominales, todavía no resultados físicos; no programar el PSoC con estos parámetros sin validación.

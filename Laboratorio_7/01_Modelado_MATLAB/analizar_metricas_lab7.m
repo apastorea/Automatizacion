@@ -84,5 +84,6 @@ if ~isfolder(destino), mkdir(destino); end
 archivo = fullfile(destino, 'metricas_nominales_lab7.csv');
 writetable(T, archivo);
 fprintf('\nCSV generado: %s\n', archivo);
-fprintf('Escalon real: %.0f ms (r[k]=0.05*(k>10), Ts=2 ms).\n', tiempo_escalon_ms(1));
+fprintf('Escalon real: %.0f ms (primer k con referencia positiva: %d, t=(k-1)*Ts).\n', ...
+    tiempo_escalon_ms(1), round(tiempo_escalon_ms(1)/(1000*p.Ts_s))+1);
 fprintf('ATENCION: Datos de SIMULACION NOMINAL, no experimentales.\n');

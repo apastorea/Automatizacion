@@ -2,17 +2,17 @@
 
 **Fecha:** 2026-11-23. **Fuente:** ecuaciones de `simular_lab7.m` y gráficos de MATLAB R2026b aportados por el estudiante. No son mediciones reales.
 
-> CORRECCIÓN: el escalón ocurre a los 22 ms (`r(k)=0.05*(k>10)`), no a los 20 ms. Esta tabla sustituye las métricas preliminares publicadas en el análisis anterior.
+**Verificación directa de MATLAB:** el escalón ocurre a los **20 ms** (`k=11`, `t=(k-1)*Ts`). La afirmación intermedia de 22 ms fue incorrecta y queda anulada.
 
 | Métrica | Predictor E1 | Predictor E2 |
 |---|---:|---:|
-| Pico salida [V] | 0.057839601 | 0.057928867 |
-| Sobrepasamiento [%] | 15.679202 | 15.857734 |
-| Tiempo al pico desde escalón [ms] | 20 | 20 |
+| Pico salida [V] | 0.057646299 | 0.057807208 |
+| Sobrepasamiento [%] | 15.292598 | 15.614416 |
+| Tiempo al pico desde escalón [ms] | 22 | 20 |
 | Establecimiento ±2% desde escalón [ms] | 46 | 46 |
 | Convergencia norma error <1e-4 persistente [ms] | 14 | 10 |
 | Máximo |y| antes del escalón [V] | 0.008196786 | 0.005515107 |
-| Máximo u [V] | 0.099280442 | 0.099844626 |
+| Máximo u [V] | 0.097981136 | 0.099068980 |
 | Mínimo u [V] | -0.008716071 | -0.005589159 |
 | Control inicial [V] | 0.025574820 | 0.025574820 |
 

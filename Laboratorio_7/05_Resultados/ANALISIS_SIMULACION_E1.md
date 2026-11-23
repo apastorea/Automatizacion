@@ -2,17 +2,17 @@
 
 **Fecha:** 2026-11-23. **Estado:** simulación nominal, no ensayo físico.
 
-> CORRECCIÓN: en `simular_lab7.m`, `r(k)=p.referencia_V*(k>10)`, por lo que la referencia aparece en **t=22ms**, no 20ms. Las cifras de este archivo están recalculadas con esa temporización. Ver también `COMPARATIVA_CUATRO_CASOS.md`.
+**Verificación con MATLAB:** `r(k)=p.referencia_V*(k>10)` aplica el escalón en **t=20ms** (k=11). La afirmación previa de 22ms fue un error, rectificado en este documento.
 
 | Métrica | Predictor E1 | Actual E1 |
 |---|---:|---:|
-| Salida máxima [V] | 0.057839601 | 0.057897046 |
-| Sobrepasamiento [%] | 15.679202 | 15.794093 |
-| Tiempo al pico desde escalón [ms] | 20 | 22 |
+| Salida máxima [V] | 0.057646299 | 0.057631460 |
+| Sobrepasamiento [%] | 15.292598 | 15.262920 |
+| Tiempo al pico desde escalón [ms] | 22 | 22 |
 | Establecimiento ±2% desde escalón [ms] | 46 | 48 |
 | Convergencia norma de error <1e-4 [ms] | 14 | 14 |
 | Control inicial [V] | 0.025574820 | 0.055896257 |
-| Control máximo [V] | 0.099280442 | 0.099572570 |
+| Control máximo [V] | 0.097981136 | 0.097882034 |
 | Control mínimo [V] | -0.008716071 | -0.016250966 |
 | Máximo |y| previo al escalón [V] | 0.008196786 | 0.015224646 |
 | Control final [V] | 0.049088908 | 0.049088909 |

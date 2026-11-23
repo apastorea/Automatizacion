@@ -5,9 +5,10 @@ Se ejecutaron en MATLAB R2026b las cuatro combinaciones nominales
 $T_s=\SI{2}{\milli\second}$, $K=[2.156922\quad 6.871326]$
 y $N_r=1.094748$. El código aplica la referencia
 $r[k]=\SI{0.05}{\volt}$ para $k>10$; dado que MATLAB inicia sus índices
-en uno, el escalón se produce exactamente en $t=\SI{22}{\milli\second}$,
-no en \SI{20}{\milli\second}. Esto corrige una lectura visual
-preliminar y las primeras cifras de una versión anterior del informe.
+en uno, el primer índice con $k>10$ es $k=11$. Dado que el
+vector temporal es $t_k=(k-1)T_s$, el escalón se aplica a
+$t=\SI{20}{\milli\second}$. Se rectifica una versión
+intermedia que indicaba erróneamente \SI{22}{\milli\second}.
 Los cuatro gráficos fueron remitidos por el estudiante.
 Las métricas se obtuvieron mediante una reproducción numérica
 independiente de \texttt{simular\_lab7.m}; el archivo
@@ -41,7 +42,7 @@ $\hat{x}[0]=[0.02\quad-0.01]^\top$.
 E1 utiliza polos $0.4\pm j0.25$ ($|z|=0.472$);
 E2 utiliza $0.2\pm j0.10$ ($|z|=0.224$).
 El tiempo al pico y el de establecimiento se cuentan desde el
-escalón a \SI{22}{\milli\second}. Este último es la primera
+escalón a \SI{20}{\milli\second}. Este último es la primera
 muestra posterior a la última excursión fuera de $\pm2\%$ del valor
 final. La convergencia de la norma del error requiere que todas las
 muestras posteriores cumplan $\|e\|_2<10^{-4}$.
@@ -56,14 +57,14 @@ P: predictor; A: estimador de estado actual.}
 \toprule
 Magnitud & P--E1 & A--E1 & P--E2 & A--E2 \\
 \midrule
-Máximo de salida (\si{\milli\volt}) & 57.840 & 57.897 & 57.929 & 57.928 \\
-Sobrepasamiento (\%) & 15.679 & 15.794 & 15.858 & 15.856 \\
-Tiempo al pico tras escalón (\si{\milli\second}) & 20 & 22 & 20 & 20 \\
+Máximo de salida (\si{\milli\volt}) & 57.646 & 57.631 & 57.807 & 57.809 \\
+Sobrepasamiento (\%) & 15.293 & 15.263 & 15.614 & 15.618 \\
+Tiempo al pico tras escalón (\si{\milli\second}) & 22 & 22 & 20 & 20 \\
 Establecimiento $\pm2\%$ tras escalón (\si{\milli\second}) & 46 & 48 & 46 & 46 \\
 Convergencia $\|e\|_2<10^{-4}$ (\si{\milli\second}) & 14 & 14 & 10 & 8 \\
 Máximo $|y|$ previo al escalón (\si{\milli\volt}) & 8.197 & 15.225 & 5.515 & 5.377 \\
 $u[0]$ (\si{\milli\volt}) & 25.575 & 55.896 & 25.575 & 24.695 \\
-Máximo de $u$ (\si{\milli\volt}) & 99.280 & 99.573 & 99.845 & 99.840 \\
+Máximo de $u$ (\si{\milli\volt}) & 97.981 & 97.882 & 99.069 & 99.081 \\
 Mínimo de $u$ (\si{\milli\volt}) & -8.716 & -16.251 & -5.589 & -5.456 \\
 $u$ final (\si{\milli\volt}) & 49.089 & 49.089 & 49.089 & 49.089 \\
 \bottomrule
