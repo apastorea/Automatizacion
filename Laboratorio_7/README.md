@@ -21,7 +21,9 @@
 - [ ] Modelo y muestreo validados fisicamente para Lab7.
 - [ ] Calibración física ADC/DAC posterior al montaje definitivo.
 - [x] Ganancias nominales K, Nr, L_pred, L_actual calculadas y contrastadas numericamente.
-- [ ] Validacion en MATLAB local y posterior ajuste con la planta medida.
+- [x] Validacion nominal ejecutada en MATLAB R2026b por el estudiante; cuatro graficas revisadas.
+- [x] Tablas cuantitativas corregidas y script independiente para exportar metricas nominales.
+- [ ] Ajuste y validacion del modelo con la planta fisica.
 - [ ] Mapa completo TopDesign, ADC, DAC, Timer, ISR y UART para Lab7.
 - [ ] Ensayos en PSoC de ambas arquitecturas, con dos juegos de polos evaluados.
 - [ ] Datos crudos, gráficos, tablas, métricas, comparación y conclusiones.
@@ -35,3 +37,8 @@ La función matemática del observador actual usa la medición **de la misma mue
 ## Etapa 1 — Modelo nominal
 
 Consultar `01_Modelado_MATLAB/DERIVACION_MODELO_NOMINAL.md`. Ejecutar `validar_nominal_lab7` y `lab7_principal` con Control System Toolbox. Datos simulados, no experimentales.
+
+
+## Etapa 2 — Métricas de las cuatro simulaciones
+
+Ejecutar `01_Modelado_MATLAB/analizar_metricas_lab7.m` para generar `05_Resultados/metricas_nominales_lab7.csv`. **Atención:** el escalón se aplica a `t=22ms` según el código vigente; las tablas anteriores que indicaban 20ms fueron corregidas. Ver `05_Resultados/COMPARATIVA_CUATRO_CASOS.md`.

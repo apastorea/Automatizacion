@@ -28,7 +28,7 @@
 - El modelo identificado Lab5 (tau=9.06915 ms y 0.774399 ms) no se confunde con el nominal (15 ms y 1.5 ms).
 - Se permitio simulacion nominal sin declarar p.validado=true. Faltan ensayos y autorizacion de hardware.
 
-## 2026-11-23 — Simulaciones nominales E1 verificadas por el usuario en MATLAB R2026b
+## 2026-11-23 — Simulaciones nominales E1 verificadas (MÉTRICAS PRELIMINARES, CORREGIDAS ABAJO) por el usuario en MATLAB R2026b
 
 - Captura del usuario: `validar_nominal_lab7` terminó correctamente (solo advertencia intencional de modelo nominal); `lab7_principal` confirmó cuatro conjuntos simulados y generó PNG/CSV en su PC.
 - Gráficas recibidas y analizadas: `lab7_prediccion_E1.png` y `lab7_actual_E1.png`; no se han incorporado los archivos de imagen al repositorio.
@@ -38,7 +38,7 @@
 - Nota: la norma de error del actual en k=0 ya incluye la corrección con y[0]; no comparar directamente la primera muestra con el predictor.
 - Pendiente: análisis de E2 y exportación de métricas directamente desde MATLAB; validación física en PSoC y Rigol.
 
-## 2026-11-23 — Comparación predictores E1 y E2 (modelo nominal)
+## 2026-11-23 — Comparación predictores E1 y E2 (MÉTRICAS PRELIMINARES, CORREGIDAS ABAJO)
 
 - Recibida y analizada imagen `lab7_prediccion_E2.png` del usuario. Aún no se incorporó el PNG al repositorio.
 - Comparación numérica reproduciendo `simular_lab7.m` con Ts=2 ms, r=50 mV a 20 ms, y las mismas condiciones iniciales.
@@ -47,3 +47,15 @@
 - Max salida antes del escalon 8.197 mV → 5.515 mV; max mando 97.981 mV → 99.069 mV; mando inicial en ambos 25.575 mV.
 - La rapidez del observador reduce el transitorio por error inicial, pero no cambia los polos de control; no afirmar mejor seguimiento universal.
 - Falta revisar grafica `lab7_actual_E2.png`, y medir efecto de ruido y hardware.
+
+## 2026-11-23 — Cierre nominal de los cuatro casos y errata metodologica
+
+- Recibida grafica `lab7_actual_E2.png` y completada la inspeccion de las cuatro capturas de MATLAB.
+- Se detecto que `r(k)=0.05*(k>10)` aplica el escalon en **t=22ms** y no t=20ms. Se recalcularon todas las métricas utilizando esa temporizacion y la implementacion de `simular_lab7.m`; cifras preliminares anteriores sustituidas.
+- P-E1: Mp 15.679202%, ts2 46ms, max y 57.839601mV, max u 99.280442mV.
+- A-E1: Mp 15.794093%, ts2 48ms, max y 57.897046mV, max u 99.572570mV.
+- P-E2: Mp 15.857734%, ts2 46ms, max y 57.928867mV, max u 99.844626mV.
+- A-E2: Mp 15.856449%, ts2 46ms, max y 57.928225mV, max u 99.840336mV.
+- La norma del error converge <1e-4 persistentemente a 14,14,10,8ms respectivamente desde t=0. Las normas de estimador actual contienen la correccion con y[k] dentro de la muestra.
+- Se incorpora `01_Modelado_MATLAB/analizar_metricas_lab7.m` para obtener las metricas y CSV directamente en MATLAB del usuario.
+- **Sigue pendiente** validacion fisica ADC/DAC, planta, timer y respuesta ante ruido/perturbaciones; coeficientes NO aprobados para hardware.

@@ -1,16 +1,24 @@
 \section{Resultados y discusión}
-\subsection{Alcance de las simulaciones}
-Se ejecutaron en MATLAB R2026b las cuatro configuraciones nominales
-(predicción y estado actual; ubicaciones E1 y E2) con
-$T_s=\SI{2}{\milli\second}$ y referencia de \SI{50}{\milli\volt}
-aplicada en $t=\SI{20}{\milli\second}$.
-La salida $y[k]$ es el único estado medido que se realimentaría físicamente.
-Los valores de esta sección son \emph{exclusivamente simulaciones}, no
-mediciones en PSoC. La curva de predicción E2 también fue analizada; falta contrastar la de estado actual E2.
+\subsection{Alcance y reproducibilidad}
+Se ejecutaron en MATLAB R2026b las cuatro combinaciones nominales
+(predicción/estado actual y polos E1/E2), con
+$T_s=\SI{2}{\milli\second}$, $K=[2.156922\quad 6.871326]$
+y $N_r=1.094748$. El código aplica la referencia
+$r[k]=\SI{0.05}{\volt}$ para $k>10$; dado que MATLAB inicia sus índices
+en uno, el escalón se produce exactamente en $t=\SI{22}{\milli\second}$,
+no en \SI{20}{\milli\second}. Esto corrige una lectura visual
+preliminar y las primeras cifras de una versión anterior del informe.
+Los cuatro gráficos fueron remitidos por el estudiante.
+Las métricas se obtuvieron mediante una reproducción numérica
+independiente de \texttt{simular\_lab7.m}; el archivo
+\texttt{analizar\_metricas\_lab7.m} permite volver a calcularlas
+directamente en MATLAB y exportarlas a CSV. Todos los resultados de esta
+sección son \emph{simulaciones con modelo nominal}; todavía no hay
+mediciones físicas de la planta.
 
 \begin{table}[t]
 \centering
-\caption{Estado de los casos del Laboratorio 7.}
+\caption{Estado de los cuatro casos del Laboratorio 7.}
 \label{tab:ensayos}
 \small
 \begin{tabular}{@{}llll@{}}
@@ -18,113 +26,83 @@ mediciones en PSoC. La curva de predicción E2 también fue analizada; falta con
 Observador & Polos & MATLAB & PSoC \\
 \midrule
 Predicción & E1 & Analizado & Pendiente \\
-Predicción & E2 & Analizado & Pendiente \\
 Actual & E1 & Analizado & Pendiente \\
-Actual & E2 & Ejecutado & Pendiente \\
+Predicción & E2 & Analizado & Pendiente \\
+Actual & E2 & Analizado & Pendiente \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Comparación nominal entre observadores E1}
-Para ambos controladores se utilizaron los polos de lazo cerrado
-$0.8\pm j0.25$, los polos de observación E1 $0.4\pm j0.25$
-y las mismas condiciones iniciales: $x[0]=[0\quad0]^\top$,
-$\hat{x}[0]=[0.02\quad-0.01]^\top$. Las métricas de la
-Tabla~\ref{tab:res_e1} se calcularon reproduciendo numéricamente el
-algoritmo de las simulaciones MATLAB, y se contrastaron con las
-gráficas aportadas del ensayo computacional.
+\subsection{Comparación cuantitativa de las cuatro estructuras}
+En todos los casos los polos del controlador son
+$0.8\pm j0.25$ y se establecieron
+$x[0]=[0\quad0]^\top$ y
+$\hat{x}[0]=[0.02\quad-0.01]^\top$.
+E1 utiliza polos $0.4\pm j0.25$ ($|z|=0.472$);
+E2 utiliza $0.2\pm j0.10$ ($|z|=0.224$).
+El tiempo al pico y el de establecimiento se cuentan desde el
+escalón a \SI{22}{\milli\second}. Este último es la primera
+muestra posterior a la última excursión fuera de $\pm2\%$ del valor
+final. La convergencia de la norma del error requiere que todas las
+muestras posteriores cumplan $\|e\|_2<10^{-4}$.
 
-\begin{table}[t]
+\begin{table*}[t]
 \centering
-\caption{Comparación E1: simulación nominal, no ensayo físico.}
-\label{tab:res_e1}
+\caption{Resultados comparativos nominales (sin ruido ni cuantización).
+P: predictor; A: estimador de estado actual.}
+\label{tab:cuatro_nominales}
 \small
-\begin{tabular}{@{}lrr@{}}
+\begin{tabular}{@{}lrrrr@{}}
 \toprule
-Magnitud & Predictor & Actual \\
+Magnitud & P--E1 & A--E1 & P--E2 & A--E2 \\
 \midrule
-Máximo de salida (\si{\milli\volt}) & 57.646 & 57.631 \\
-Sobrepasamiento (\%) & 15.293 & 15.263 \\
-Pico desde el escalón (\si{\milli\second}) & 22 & 22 \\
-Establecimiento $\pm2\%$ (\si{\milli\second}) & 46 & 48 \\
-$u[0]$ (\si{\milli\volt}) & 25.57 & 55.90 \\
-$\max u$ (\si{\milli\volt}) & 97.98 & 97.88 \\
-$\min u$ (\si{\milli\volt}) & -8.72 & -16.25 \\
-$u_\infty$ (\si{\milli\volt}) & 49.09 & 49.09 \\
+Máximo de salida (\si{\milli\volt}) & 57.840 & 57.897 & 57.929 & 57.928 \\
+Sobrepasamiento (\%) & 15.679 & 15.794 & 15.858 & 15.856 \\
+Tiempo al pico tras escalón (\si{\milli\second}) & 20 & 22 & 20 & 20 \\
+Establecimiento $\pm2\%$ tras escalón (\si{\milli\second}) & 46 & 48 & 46 & 46 \\
+Convergencia $\|e\|_2<10^{-4}$ (\si{\milli\second}) & 14 & 14 & 10 & 8 \\
+Máximo $|y|$ previo al escalón (\si{\milli\volt}) & 8.197 & 15.225 & 5.515 & 5.377 \\
+$u[0]$ (\si{\milli\volt}) & 25.575 & 55.896 & 25.575 & 24.695 \\
+Máximo de $u$ (\si{\milli\volt}) & 99.280 & 99.573 & 99.845 & 99.840 \\
+Mínimo de $u$ (\si{\milli\volt}) & -8.716 & -16.251 & -5.589 & -5.456 \\
+$u$ final (\si{\milli\volt}) & 49.089 & 49.089 & 49.089 & 49.089 \\
 \bottomrule
 \end{tabular}
-\end{table}
+\end{table*}
 
-El predictor presentó un máximo de \SI{8.20}{\milli\volt}
-antes de aplicar la referencia, frente a \SI{15.22}{\milli\volt}
-del estimador actual. Esta diferencia surge del error de inicialización:
-en el estimador actual, la medición de la muestra $k$ modifica la
-estimación antes de calcular $u[k]$; el predictor utiliza la innovación
-para construir el estado estimado de la siguiente muestra.
-Aunque el estimador actual utiliza información más reciente, no
-proporciona por sí mismo un menor tiempo de establecimiento: en este
-caso, ambos comportamientos son muy semejantes.
+Los errores de estimación convergen más rápidamente en E2, al mover
+sus polos hacia el origen. El estimador actual E2 alcanza
+$\|e\|_2<10^{-4}$ con permanencia a los \SI{8}{\milli\second},
+frente a \SI{14}{\milli\second} del actual E1, una disminución
+de aproximadamente $42.9\%$ para este criterio. La máxima
+excursión de salida antes del escalón también se reduce de
+\SI{15.225}{\milli\volt} a \SI{5.377}{\milli\volt}.
+No obstante, E2 no reduce sustancialmente el sobrepasamiento,
+porque no cambia los polos del controlador $A-BK$.
 
-La norma de error inicial reportada por el estimador actual está
-calculada \emph{después} de corregir su predicción con $y[0]$,
-mientras que la del predictor es previa a esa corrección. Por ello
-no debe compararse directamente la altura inicial de las curvas
-como si representaran el mismo instante de cálculo.
-En condiciones ideales, ambas arquitecturas presentan convergencia
-del error; resta estudiar ruido, cuantización y retardos reales.
+Es importante precisar que la norma inicial de error mostrada por
+la arquitectura actual se calcula después de corregir con la
+medición $y[0]$, mientras que en el predictor se calcula antes
+de esa corrección. No se debe interpretar directamente una
+comparación de ordenadas iniciales como superioridad global
+de precisión.
 
-\subsection{Efecto de acelerar el predictor: E1 frente a E2}
-Se mantuvo $K$ fijo y se modificaron exclusivamente los polos del
-observador: E1 ($0.4\pm j0.25$, módulo $0.472$) y
-E2 ($0.2\pm j0.10$, módulo $0.224$). Las
-condiciones iniciales, el escalón y el muestreo fueron idénticos.
-La Tabla~\ref{tab:pred_e1_e2} registra las métricas reproducidas con
-el algoritmo discreto a partir del modelo nominal.
-
-\begin{table}[t]
-\centering
-\caption{Predictores E1 y E2: simulación nominal.}
-\label{tab:pred_e1_e2}
-\small
-\begin{tabular}{@{}lrr@{}}
-\toprule
-Magnitud & E1 & E2 \\
-\midrule
-Máximo salida (\si{\milli\volt}) & 57.646 & 57.807 \\
-Sobrepasamiento (\%) & 15.293 & 15.614 \\
-Pico desde escalón (\si{\milli\second}) & 22 & 20 \\
-Establecimiento $\pm2\%$ (\si{\milli\second}) & 46 & 46 \\
-$\|e\|<10^{-4}$, persistente (\si{\milli\second}) & 14 & 10 \\
-Máx.\ salida previa al escalón (\si{\milli\volt}) & 8.197 & 5.515 \\
-Máx.\ $u$ (\si{\milli\volt}) & 97.981 & 99.069 \\
-$u[0]$ (\si{\milli\volt}) & 25.575 & 25.575 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-El error de estimación converge por debajo de $10^{-4}$ y permanece
-allí desde \SI{14}{\milli\second} en E1, frente a
-\SI{10}{\milli\second} en E2. La reducción es de aproximadamente
-$28.6\%$ para este umbral y condiciones iniciales; no implica
-una reducción idéntica de todos los tiempos característicos.
-El error más breve reduce la excursión de salida previa
-al escalón, de \SI{8.197}{\milli\volt} a
-\SI{5.515}{\milli\volt}.
-
-Por el principio de separación, los polos del controlador
-$\mathrm{eig}(A-BK)$ no cambian al variar los polos del estimador;
-por tanto, la respuesta a la referencia una vez desaparecido el
-error de estimación es esencialmente la misma. El sobrepasamiento
-incluso aumenta levemente (de $15.293\%$ a $15.614\%$), mientras
-que el máximo de control crece de \SI{97.981}{\milli\volt}
-a \SI{99.069}{\milli\volt}. Estos valores no permiten afirmar que
-el observador más rápido mejora universalmente el transitorio.
-Resta evaluar el ruido de medición, que podría afectar
-más a ganancias de corrección elevadas.
+\subsection{Interpretación y limitaciones}
+El principio de separación explica que los polos del controlador
+y los del estimador puedan asignarse independientemente bajo
+las hipótesis de controlabilidad y observabilidad. El E2 ofrece
+convergencia más rápida del error inicial y reduce la respuesta
+espuria antes del escalón; sin embargo, el máximo de la señal de
+control se mantiene cercano a \SI{100}{\milli\volt} y el
+establecimiento principal cambia muy poco. Aún no se simuló
+ruido de medición, cuantización ADC/DAC, error de modelo ni
+retardo de cálculo; por consiguiente, estos resultados no
+permiten afirmar que E2 sea más robusto en hardware.
 
 \subsection{Ensayos experimentales pendientes}
-Para cada diseño deberán medirse los tiempos de establecimiento,
-los sobrepasamientos, el error estacionario, el máximo y el RMS del
-esfuerzo, y el efecto del ruido. La comparación MATLAB--banco requiere
-datos exportados del Rigol DS1202Z-E y calibraciones ADC/DAC actuales.
-No se atribuyen las métricas nominales al hardware físico.
+Se debe revalidar la planta y las calibraciones ADC/DAC a partir
+del montaje físico, comprobar $T_s$ y el plazo de cómputo con el
+Rigol DS1202Z-E y registrar sobrepasamiento, establecimiento,
+error estacionario y esfuerzo mediante datos reales. La elección
+definitiva se hará después de cuantificar la sensibilidad al
+ruido y las diferencias MATLAB--PSoC.
