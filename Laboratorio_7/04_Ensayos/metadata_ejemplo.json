@@ -1,0 +1,18 @@
+{
+  "laboratorio": 7,
+  "fecha": "PENDIENTE",
+  "tipo_estimador": "prediccion_o_actual",
+  "ubicacion_polos": "E1_o_E2",
+  "modelo_revision": "PENDIENTE",
+  "Ts_programado_s": null,
+  "Ts_medido_s": null,
+  "referencia_V": null,
+  "captura_osciloscopio": "Rigol DS1202Z-E",
+  "canal_1": "mando_fisico_punto_de_prueba_pendiente",
+  "canal_2": "salida_medida_punto_de_prueba_pendiente",
+  "calibracion_revision": "PENDIENTE",
+  "flags_saturacion": null,
+  "tiempo_ISR_max_us": null,
+  "valido_para_informe": false,
+  "observaciones": ""
+}

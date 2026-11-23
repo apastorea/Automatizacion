@@ -1,0 +1,51 @@
+\section{Diseño del controlador y estimadores}
+\subsection{Realimentación de estados estimados}
+La ley de control para ambos esquemas será
+\begin{equation}\label{eq:control}
+ u[k]=-K\widehat{\mathbf{x}}[k]+N_r r[k].
+\end{equation}
+Los polos del controlador se asignarán mediante \(K=\operatorname{place}
+(A,B,p_c)\), verificando los valores propios de \(A-BK\). En el caso
+SISO, \(D=0\) y seguimiento de referencia constante, se utilizará
+\begin{equation}
+ N_r=\left[C(I-A+BK)^{-1}B\right]^{-1}.
+\end{equation}
+Los cálculos no suponen que el comportamiento con saturación sea exactamente
+el del modelo lineal sin restricciones.
+
+\subsection{Estimador de predicción}
+La innovación se calcula con la salida disponible \(y[k]\), pero la
+estimación corregida se utiliza en el siguiente instante:
+\begin{equation}\label{eq:predictor}
+\widehat{\mathbf{x}}[k+1]=A\widehat{\mathbf{x}}[k]+Bu[k]
+ +L_p\big(y[k]-C\widehat{\mathbf{x}}[k]\big).
+\end{equation}
+Con \(D=0\), la dinámica de error es
+\begin{equation}
+ \mathbf e[k+1]=(A-L_pC)\mathbf e[k].
+\end{equation}
+Por dualidad, \(L_p=\operatorname{place}(A^T,C^T,p_e)^T\).
+
+\subsection{Estimador de estado actual}
+El observador actual distingue predicción y corrección en la misma muestra:
+\begin{align}
+\mathbf z[k]&=A\widehat{\mathbf{x}}[k-1]+Bu[k-1],\\
+\widehat{\mathbf{x}}[k]&=\mathbf z[k]+L_a\big(y[k]-C\mathbf z[k]\big).
+\end{align}
+La ley de control~\eqref{eq:control} utiliza la estimación corregida.
+La matriz de transición del error corregido es
+\begin{equation}
+ (I-L_a C)A=A-L_a C A.
+\end{equation}
+En consecuencia, para asignar sus polos se empleará
+\(L_a=\operatorname{place}(A^T,(CA)^T,p_e)^T\), comprobando previamente
+observabilidad y rango adecuados. Se evitará equiparar directamente
+\(L_p\) con \(L_a\), pues representan arquitecturas diferentes.
+
+\subsection{Experimentos de ubicación de polos}
+Se mantendrá el mismo \(K\) en las cuatro comparaciones:
+(predicción, E1), (predicción, E2), (actual, E1) y (actual, E2).
+Las dos parejas del observador deberán situarse dentro del círculo unidad
+y responder a un criterio de velocidad y sensibilidad al ruido.
+La elección definitiva de polos y los parámetros numéricos se registrarán
+en las tablas de diseño, no se fijan en esta versión inicial.

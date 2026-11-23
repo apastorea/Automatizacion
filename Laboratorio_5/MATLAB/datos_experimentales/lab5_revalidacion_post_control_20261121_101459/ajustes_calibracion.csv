@@ -1,0 +1,11 @@
+metric,value,unit
+sample_period,0.00954,s
+first_physical_edge,-0.615,s
+j5_zero_offset,0.0192967741935484,V
+j5_per_applied_slope,0.998521968745693,V/V
+j5_fit_intercept,0.0197161670375421,V
+j5_fit_rmse,0.000641071065926335,V
+j7_zero_offset,0.00986881720430108,V
+j7_per_uart_y_slope,1.02334189007488,V/V
+j7_fit_intercept,-0.000849300003267858,V
+j7_fit_rmse,0.00293212185868523,V

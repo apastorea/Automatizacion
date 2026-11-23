@@ -1,0 +1,46 @@
+{
+  "fecha": "2026-11-17",
+  "osciloscopio": {
+    "fabricante": "RIGOL TECHNOLOGIES",
+    "modelo": "DS1202Z-E",
+    "firmware": "00.06.04",
+    "serie": "DS1ZE275014864",
+    "visa": "USB0::0x1AB1::0x0517::DS1ZE275014864::0::INSTR",
+    "sondas": "10X",
+    "acoplamiento": "DC",
+    "impedancia_ohm": 1000000,
+    "limite_ancho_banda_mhz": 20
+  },
+  "psoc": {
+    "plataforma": "PSoC 5LP",
+    "ide": "PSoC Creator 4.4",
+    "configuracion_compilacion": "Release",
+    "puerto_serie": "COM4",
+    "baud": 57600,
+    "formato": "8N1",
+    "periodo_muestreo_us": 1000,
+    "isr_max_us": 96
+  },
+  "matlab": {
+    "version": "R2026b",
+    "interfaces_verificadas": ["visadev", "serialport"]
+  },
+  "calibracion": {
+    "adc_offset_v": 2.353802067,
+    "adc_volts_per_plant_volt": 0.210251951,
+    "dac_volts_per_count": 0.004,
+    "dac_positive_gain": 3.842612,
+    "dac_negative_gain": 2.640105691,
+    "output_min_v": -1.0,
+    "output_max_v": 1.0
+  },
+  "cableado": {
+    "J8_J5": "mando DAC hacia entrada de planta",
+    "J10_J6": "interconexion fisica requerida por el esquematico",
+    "J7_J4": "salida de planta hacia acondicionador ADC",
+    "J9_P0_2": "entrada ADC del PSoC",
+    "RIGOL_CH1": "J5",
+    "RIGOL_CH2": "J7"
+  }
+}
+

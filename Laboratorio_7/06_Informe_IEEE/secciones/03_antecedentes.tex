@@ -1,0 +1,41 @@
+\section{Plataforma experimental y antecedentes}
+\subsection{Instrumentación}
+La plataforma comprende un PSoC 5LP con ADC, DAC y temporizador de muestreo;
+planta analógica con acondicionamiento de entrada y salida; fuente de
+alimentación; PC con MATLAB; y osciloscopio \emph{Rigol DS1202Z-E}.
+La instrumentación previa empleó USB-TMC/SCPI, sondas \(10\times\),
+acoplamiento DC, telemetría UART a \SI{57600}{bit\per\second} y adquisición
+sincronizada. Estos antecedentes constituyen una referencia operativa, no una
+calibración vigente del nuevo montaje.
+
+\subsection{Calibración histórica}
+La Tabla~\ref{tab:calib_historica} reúne parámetros documentados en los
+archivos de configuración y en el ajuste experimental del Laboratorio 5.
+La adquisición del Lab7 comenzará con una \textbf{revalidación} de cero, rango,
+pendientes y ruido a partir de su propio cableado.
+
+\begin{table}[t]
+\centering
+\caption{Parámetros documentados del Laboratorio 5 (no revalidados en Lab7).}
+\label{tab:calib_historica}
+\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+Parámetro histórico & Valor documentado \\
+\midrule
+Offset del ADC & \SI{2.353802067}{\volt} \\
+Escala ADC/planta & \SI{0.210251951}{\volt\per\volt} \\
+Ganancia de DAC (+) & 3,842612 \\
+Ganancia de DAC (-) & 2,640105691 \\
+Offset físico J5 & \SI{17.209}{\milli\volt} \\
+Pendiente J5/mando aplicado & 0,981710 \\
+RMSE del ajuste de J7 & \SI{3.374}{\milli\volt} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+En las comparaciones se conservarán las tensiones crudas de los dos canales,
+la telemetría digital, los valores calibrados, la referencia física, la
+señal de control realmente aplicada y los metadatos de disparo del osciloscopio.
+Esto evita confundir coincidencias visuales de amplitud con validaciones
+cuantitativas de la respuesta del sistema.

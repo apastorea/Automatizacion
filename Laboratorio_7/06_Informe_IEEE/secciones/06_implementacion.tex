@@ -1,0 +1,34 @@
+\section{Metodología de simulación e implementación}
+\subsection{Simulación en MATLAB}
+El programa \texttt{lab7\_principal.m} compara cuatro combinaciones de
+observador utilizando la misma planta, referencia y condiciones iniciales.
+Se exportarán series temporales y las matrices diseñadas. Se analizarán:
+la respuesta \(y[k]\), el esfuerzo \(u[k]\), la innovación, las
+trayectorias estimadas, el sobrepasamiento, el tiempo de establecimiento,
+el error estacionario y la activación de límites de actuación. El error de
+estimación completo \(\mathbf x-\widehat{\mathbf x}\) es observable en
+simulación; en el banco debe distinguirse de las mediciones físicas
+disponibles.
+
+\subsection{Arquitectura propuesta para el PSoC}
+En cada evento de muestreo se adquirirá la salida de la planta mediante el
+ADC, se convertirá a unidades físicas y se actualizará el estimador
+seleccionado. Después se calculará la ley~\eqref{eq:control}, se limitará
+el mando a la región validada y se enviará al DAC. La UART almacenará
+referencia, salida, estados estimados, innovación, mando solicitado,
+mando aplicado, banderas y tiempos de ejecución. La temporización se
+verificará con un pin de diagnóstico y el Rigol DS1202Z-E.
+
+El programa C inicial contiene \texttt{lab7\_estimadores.c} y
+\texttt{lab7\_estimadores.h}. Es el núcleo matemático y
+\emph{todavía no constituye firmware de PSoC Creator ejecutable};
+resta integrar el diseño de periféricos, ISR, conversión ADC/DAC y
+protecciones reales.
+
+\subsection{Protocolo de medición}
+Antes del lazo cerrado se comprobarán la continuidad de los puntos de
+prueba, las masas, el ajuste de sondas \(10\times\), la salida nula,
+el rango bipolar del DAC, la calibración del ADC, el periodo muestreado
+y el tiempo máximo de ejecución. Se guardarán simultáneamente ondas
+crudas del Rigol, registros PSoC y metadatos, con una única amplitud de
+referencia física por ensayo y sin correcciones tácitas.

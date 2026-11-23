@@ -1,0 +1,55 @@
+% Laboratorio 7 de Automatizacion - Informe IEEE editable.
+% Documento de INICIO: no atribuye resultados experimentales de Lab7.
+% Guia oficial con encabezado erroneo "Laboratorio 6".
+\documentclass[conference,10pt]{IEEEtran}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-nodecimaldot]{babel}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,tabularx,array}
+\usepackage{graphicx}
+\usepackage{cite}
+\usepackage{siunitx}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+\sisetup{output-decimal-marker={,},per-mode=symbol}
+
+\title{Diseño e Implementación de Controladores Digitales\\
+con Estimadores de Predicción y Estado Actual}
+\author{\IEEEauthorblockN{[Nombre del estudiante]}\\
+\IEEEauthorblockA{Carrera de Ingeniería Electrónica\\
+Universidad Católica ``Nuestra Señora de la Asunción''\\
+Asignatura: Automatización --- Laboratorio N.\textsuperscript{o} 7\\
+Docente: PhD. Enrique A. Vargas Cabral}}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+Se presenta la metodología de diseño e implementación de controladores digitales
+por realimentación de estados estimados para una planta analógica de segundo orden.
+Se consideran un estimador de predicción y un estimador de estado actual, con dos
+ubicaciones alternativas de polos del observador. El desarrollo se organiza desde
+el modelo físico y la selección del tiempo de muestreo hasta la discretización,
+la asignación de polos, la simulación en MATLAB y la implementación en PSoC 5LP.
+La cadena de adquisición y actuación se documenta a partir de los antecedentes
+del Laboratorio 5 y se establece un protocolo de revalidación con el osciloscopio
+Rigol DS1202Z-E. Este documento constituye la \emph{versión inicial del informe}:
+las matrices numéricas definitivas y los resultados experimentales del Laboratorio
+7 se incorporarán únicamente después de su verificación.
+\end{abstract}
+\begin{IEEEkeywords}
+control digital, estimación de estados, observador de predicción,
+observador actual, ubicación de polos, PSoC 5LP, MATLAB.
+\end{IEEEkeywords}
+
+\input{secciones/01_introduccion}
+\input{secciones/02_objetivos}
+\input{secciones/03_antecedentes}
+\input{secciones/04_modelado}
+\input{secciones/05_diseno_observadores}
+\input{secciones/06_implementacion}
+\input{secciones/07_resultados}
+\input{secciones/08_conclusiones}
+
+\input{secciones/09_bibliografia}
+\end{document}

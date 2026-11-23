@@ -1,0 +1,48 @@
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*.bak
+~$*
+.vscode/
+.idea/
+# MATLAB temporales (NO se ignoran .mat o CSV consolidados)
+*.asv
+*.mlx.autosave
+# TeX generados
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+# PSoC Creator: temporales y artefactos de compilacion
+**/codegentemp/
+**/Generated_Source/
+**/Debug/
+**/Release/
+**/BUILD.log
+**/REBUILD.log
+**/CLEAN.log
+*.o
+*.lst
+*.elf
+*.hex
+*.map
+*.pco
+*.cyfit
+*.rpt
+*.cycdx
+*.cyprj.*
+*.cywrk.*
+# Resultados de adquisicion Lab7: se incorporan de forma intencional tras validar
+Laboratorio_7/04_Ensayos/_temporales/
+Laboratorio_7/05_Resultados/_temporales/
+
+# PDF compilado se entrega por separado
+Laboratorio_7/06_Informe_IEEE/main.pdf

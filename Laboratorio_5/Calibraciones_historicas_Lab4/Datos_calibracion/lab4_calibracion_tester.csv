@@ -1,0 +1,6 @@
+point,requested_V,expected_applied_V,measured_u_V,measured_y_V,measured_adc_V,notes
+1,0.000,0.000,,,,
+2,0.050,0.056851,,,,
+3,-0.050,-0.040851,,,,
+4,0.200,0.227404,,,,
+5,-0.200,-0.204255,,,,

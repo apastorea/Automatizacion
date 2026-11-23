@@ -1,0 +1,80 @@
+set_id,sequence,quantity,node,value,unit,status,context
+inicial_u,1,mando,u,6.07,V,diagnostico_inconsistente,lectura manual inicial
+inicial_u,2,mando,u,6.05,V,diagnostico_inconsistente,lectura manual inicial
+inicial_u,3,mando,u,6.05,V,diagnostico_inconsistente,lectura manual inicial
+inicial_u,4,mando,u,6.02,V,diagnostico_inconsistente,lectura manual inicial
+inicial_u,5,mando,u,6.00,V,diagnostico_inconsistente,lectura manual inicial
+inicial_y,1,salida,y,3.103,V,diagnostico_inconsistente,lectura manual inicial
+inicial_y,2,salida,y,3.103,V,diagnostico_inconsistente,lectura manual inicial
+inicial_y,3,salida,y,3.103,V,diagnostico_inconsistente,lectura manual inicial
+inicial_y,4,salida,y,3.103,V,diagnostico_inconsistente,lectura manual inicial
+inicial_y,5,salida,y,3.103,V,diagnostico_inconsistente,lectura manual inicial
+inicial_adc,1,entrada_adc,ADC,1.725,V,diagnostico_inconsistente,lectura manual inicial
+inicial_adc,2,entrada_adc,ADC,1.725,V,diagnostico_inconsistente,lectura manual inicial
+inicial_adc,3,entrada_adc,ADC,1.724,V,diagnostico_inconsistente,lectura manual inicial
+inicial_adc,4,entrada_adc,ADC,1.724,V,diagnostico_inconsistente,lectura manual inicial
+inicial_adc,5,entrada_adc,ADC,1.723,V,diagnostico_inconsistente,lectura manual inicial
+post_reset_u,1,mando,u,0.048,V,diagnostico,lectura posterior a reinicio
+post_reset_u,2,mando,u,0.042,V,diagnostico,lectura posterior a reinicio
+post_reset_u,3,mando,u,0.039,V,diagnostico,lectura posterior a reinicio
+post_reset_u,4,mando,u,0.037,V,diagnostico,lectura posterior a reinicio
+post_reset_u,5,mando,u,0.032,V,diagnostico,lectura posterior a reinicio
+post_reset_y,1,salida,y,0.002,V,diagnostico,lectura posterior a reinicio
+post_reset_y,2,salida,y,0.002,V,diagnostico,lectura posterior a reinicio
+post_reset_y,3,salida,y,0.002,V,diagnostico,lectura posterior a reinicio
+post_reset_y,4,salida,y,0.002,V,diagnostico,lectura posterior a reinicio
+post_reset_y,5,salida,y,0.002,V,diagnostico,lectura posterior a reinicio
+post_reset_adc,1,entrada_adc,ADC,0.594,V,diagnostico,lectura posterior a reinicio
+post_reset_adc,2,entrada_adc,ADC,0.594,V,diagnostico,lectura posterior a reinicio
+post_reset_adc,3,entrada_adc,ADC,0.594,V,diagnostico,lectura posterior a reinicio
+post_reset_adc,4,entrada_adc,ADC,0.594,V,diagnostico,lectura posterior a reinicio
+post_reset_adc,5,entrada_adc,ADC,0.594,V,diagnostico,lectura posterior a reinicio
+negativo_inconsistente,1,mando,u,-5.90,V,diagnostico_inconsistente,lectura manual
+negativo_inconsistente,2,mando,u,-5.83,V,diagnostico_inconsistente,lectura manual
+negativo_inconsistente,3,mando,u,-5.83,V,diagnostico_inconsistente,lectura manual
+negativo_inconsistente,4,mando,u,-5.83,V,diagnostico_inconsistente,lectura manual
+negativo_inconsistente,5,mando,u,-5.83,V,diagnostico_inconsistente,lectura manual
+cero_ruido,1,mando,u,0.00,V,diagnostico,lectura cercana a cero
+cero_ruido,2,mando,u,0.03,V,diagnostico,lectura cercana a cero
+cero_ruido,3,mando,u,-0.05,V,diagnostico,lectura cercana a cero
+cero_ruido,4,mando,u,0.04,V,diagnostico,lectura cercana a cero
+cero_ruido,5,mando,u,-0.03,V,diagnostico,lectura cercana a cero
+vout2_estable,1,tension,Vout_2,2.2,mV,diagnostico,lectura manual
+vout2_estable,2,tension,Vout_2,2.2,mV,diagnostico,lectura manual
+vout2_estable,3,tension,Vout_2,2.3,mV,diagnostico,lectura manual
+vout2_estable,4,tension,Vout_2,2.3,mV,diagnostico,lectura manual
+vout2_estable,5,tension,Vout_2,2.3,mV,diagnostico,lectura manual
+vout2_variable,1,tension,Vout_2,1.3,mV,diagnostico,lectura manual
+vout2_variable,2,tension,Vout_2,17.0,mV,diagnostico,lectura manual
+vout2_variable,3,tension,Vout_2,1.3,mV,diagnostico,lectura manual
+vout2_variable,4,tension,Vout_2,69.7,mV,diagnostico,lectura manual
+vout2_variable,5,tension,Vout_2,1.3,mV,diagnostico,lectura manual
+vout3_variable,1,tension,Vout_3,2.2,mV,diagnostico,lectura manual
+vout3_variable,2,tension,Vout_3,18.5,mV?,unidad_truncada_en_registro,valor mostrado como 18.5 m
+vout3_variable,3,tension,Vout_3,2.2,mV,diagnostico,lectura manual
+vout3_variable,4,tension,Vout_3,85.0,mV,diagnostico,lectura manual
+vout3_variable,5,tension,Vout_3,2.3,mV,diagnostico,lectura manual
+u_saturado_negativo,1,mando,u,-6.92,V,diagnostico_inconsistente,lectura manual
+u_saturado_negativo,2,mando,u,-6.97,V,diagnostico_inconsistente,lectura manual
+u_saturado_negativo,3,mando,u,-7.00,V,diagnostico_inconsistente,lectura manual
+u_saturado_negativo,4,mando,u,-7.06,V,diagnostico_inconsistente,lectura manual
+u_saturado_negativo,5,mando,u,-7.07,V,diagnostico_inconsistente,lectura manual
+u3_nodos,1,tension,J2,0.002,V,diagnostico,medición con tester
+u3_nodos,2,tension,J3,0.001,V,diagnostico,medición con tester
+u3_nodos,3,tension,U3_pin_8,-8.13,V,diagnostico_inconsistente,medición con tester
+u3_nodos,4,tension,U3_pin_4,-10.35,V,diagnostico,medición con tester
+u3_nodos,5,tension,U3_pin_1,-7.68,V,diagnostico_inconsistente,medición con tester
+u3_nodos,6,tension,U3_pin_5,0.001,V,diagnostico,medición con tester
+u3_nodos,7,tension,U3_pin_6,-7.60,V,diagnostico_inconsistente,medición con tester
+u3_nodos,8,tension,U3_pin_7_J8,-7.53,V,diagnostico_inconsistente,medición con tester
+resistencias,1,resistencia,U3_pin8_a_JP6_terminal_1,360,kOhm,diagnostico,alimentación desconectada
+resistencias,2,resistencia,U3_pin8_a_JP6_terminal_2,360,kOhm,diagnostico,alimentación desconectada
+resistencias,3,resistencia,U3_pin4_a_JP5_terminal_1,310,kOhm,diagnostico,alimentación desconectada
+resistencias,4,resistencia,U3_pin4_a_JP5_terminal_2,310,kOhm,diagnostico,alimentación desconectada
+resistencias,5,resistencia,J6_a_GND,110,kOhm,diagnostico,alimentación desconectada
+resistencias,6,resistencia,J5_a_GND,297,kOhm,diagnostico,alimentación desconectada
+continuidad,1,resistencia,J8_a_U3_pin7,0.4,Ohm,continuidad_confirmada,alimentación desconectada
+rigol_pre_soldadura,1,tension,CH1,-7.78,V,diagnostico_inconsistente,antes de corregir soldadura U3
+rigol_pre_soldadura,2,tension,CH2,-10.20,V,diagnostico,antes de corregir soldadura U3
+rigol_post_soldadura,1,tension,CH1,10.50,V,diagnostico,después de corregir soldadura U3
+rigol_post_soldadura,2,tension,CH2,-10.30,V,diagnostico,después de corregir soldadura U3

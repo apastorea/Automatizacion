@@ -1,0 +1,46 @@
+\section{Modelado y discretización}
+\subsection{Modelo continuo}
+A partir del diagrama analógico de la guía oficial, con definición explícita
+de los nodos que constituyen el vector de estados, se construirá
+\begin{align}
+ \dot{\mathbf{x}}(t) &= F\mathbf{x}(t)+G u(t),\\
+ y(t)&=H\mathbf{x}(t)+J u(t).
+\end{align}
+Para una planta de segundo orden y una sola salida medida,
+\(F\in\mathbb R^{2\times2}\), \(G\in\mathbb R^{2\times1}\),
+\(H\in\mathbb R^{1\times2}\) y \(J\in\mathbb R\).
+Las matrices numéricas, los valores R--C y las unidades se incorporarán
+cuando se confirme el circuito físico; no se copiarán de un informe ajeno.
+
+\subsection{Selección justificada del muestreo}
+La selección de \(T_s\) precede al cálculo de \(A\) y \(B\). Se estudiarán la
+frecuencia característica más rápida, el ancho de banda de diseño, la
+relación de muestreo exigida en clase y las cuentas enteras del temporizador
+\cite{samanta2024,fadali2020}. La frecuencia efectiva será
+\begin{equation}
+ f_s = \frac{1}{T_s},\qquad \omega_s=\frac{2\pi}{T_s}.
+\end{equation}
+El valor definitivo de \(T_s\) queda \emph{pendiente de verificación};
+no se adopta por defecto el de los laboratorios anteriores.
+
+\subsection{Modelo discreto con retenedor de orden cero}
+Para mando constante entre muestras (ZOH),
+\begin{align}
+ A &= e^{FT_s}, & B &= \int_{0}^{T_s} e^{F\tau}G\,d\tau,\\
+ C &= H, & D &= J. 
+\end{align}
+De ese modo,
+\begin{equation}\label{eq:planta_discreta}
+\mathbf{x}[k+1]=A\mathbf{x}[k]+Bu[k],\quad y[k]=C\mathbf{x}[k]+Du[k].
+\end{equation}
+El cálculo se verificará con \texttt{c2d(ss(F,G,H,J),Ts,'zoh')}.
+
+\subsection{Controlabilidad y observabilidad}
+Antes de asignar polos se comprobarán
+\begin{equation}
+ \mathcal C=[B\;AB],\qquad
+ \mathcal O=\begin{bmatrix} C\\CA\end{bmatrix},
+\end{equation}
+y se exigirá \(\operatorname{rango}(\mathcal C)=
+\operatorname{rango}(\mathcal O)=2\). La observabilidad debe verificarse
+\emph{desde el único canal de salida} disponible en el experimento.
