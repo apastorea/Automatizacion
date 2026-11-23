@@ -1,34 +1,81 @@
 \section{Resultados y discusión}
-\textbf{Estado de esta versión:} todavía no se efectuaron los ensayos
-específicos del Laboratorio 7. Por tanto, no se declaran matrices calculadas,
-ganancias definitivas ni métricas de respuesta física.
+\subsection{Alcance de las simulaciones}
+Se ejecutaron en MATLAB R2026b las cuatro configuraciones nominales
+(predicción y estado actual; ubicaciones E1 y E2) con
+$T_s=\SI{2}{\milli\second}$ y referencia de \SI{50}{\milli\volt}
+aplicada en $t=\SI{20}{\milli\second}$.
+La salida $y[k]$ es el único estado medido que se realimentaría físicamente.
+Los valores de esta sección son \emph{exclusivamente simulaciones}, no
+mediciones en PSoC. Las gráficas E2 permanecen pendientes de discusión.
 
 \begin{table}[t]
 \centering
-\caption{Matriz de ensayos Lab7: pendiente de simulación y medición.}
+\caption{Estado de los casos del Laboratorio 7.}
 \label{tab:ensayos}
 \small
 \begin{tabular}{@{}llll@{}}
 \toprule
 Observador & Polos & MATLAB & PSoC \\
 \midrule
-Predicción & E1 & Pendiente & Pendiente \\
-Predicción & E2 & Pendiente & Pendiente \\
-Actual & E1 & Pendiente & Pendiente \\
-Actual & E2 & Pendiente & Pendiente \\
+Predicción & E1 & Analizado & Pendiente \\
+Predicción & E2 & Ejecutado & Pendiente \\
+Actual & E1 & Analizado & Pendiente \\
+Actual & E2 & Ejecutado & Pendiente \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Se completará para cada escenario una tabla cuantitativa con \(T_s\),
-polos, \(K\), \(N_r\), \(L\), sobrepasamiento, \(t_r\), \(t_s\),
-error estacionario y máximos y RMS del esfuerzo. En la comparación
-MATLAB--banco se publicarán los errores de salida y mando sobre las
-mismas ventanas temporales, dejando identificadas saturación,
-cuantización, offset, discrepancias paramétricas y retardo de adquisición.
+\subsection{Comparación nominal entre observadores E1}
+Para ambos controladores se utilizaron los polos de lazo cerrado
+$0.8\pm j0.25$, los polos de observación E1 $0.4\pm j0.25$
+y las mismas condiciones iniciales: $x[0]=[0\quad0]^\top$,
+$\hat{x}[0]=[0.02\quad-0.01]^\top$. Las métricas de la
+Tabla~\ref{tab:res_e1} se calcularon reproduciendo numéricamente el
+algoritmo de las simulaciones MATLAB, y se contrastaron con las
+gráficas aportadas del ensayo computacional.
 
-La discusión deberá distinguir la predicción causal de estados del
-observador actual, y determinar si el cambio de polos acelera la
-convergencia a costa de una amplificación de ruido o de un mayor esfuerzo.
-La validación de un estimador no se inferirá solamente de una gráfica
-cualitativamente semejante.
+\begin{table}[t]
+\centering
+\caption{Comparación E1: simulación nominal, no ensayo físico.}
+\label{tab:res_e1}
+\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Magnitud & Predictor & Actual \\
+\midrule
+Máximo de salida (\si{\milli\volt}) & 57.646 & 57.631 \\
+Sobrepasamiento (\%) & 15.293 & 15.263 \\
+Pico desde el escalón (\si{\milli\second}) & 22 & 22 \\
+Establecimiento $\pm2\%$ (\si{\milli\second}) & 46 & 48 \\
+$u[0]$ (\si{\milli\volt}) & 25.57 & 55.90 \\
+$\max u$ (\si{\milli\volt}) & 97.98 & 97.88 \\
+$\min u$ (\si{\milli\volt}) & -8.72 & -16.25 \\
+$u_\infty$ (\si{\milli\volt}) & 49.09 & 49.09 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+El predictor presentó un máximo de \SI{8.20}{\milli\volt}
+antes de aplicar la referencia, frente a \SI{15.22}{\milli\volt}
+del estimador actual. Esta diferencia surge del error de inicialización:
+en el estimador actual, la medición de la muestra $k$ modifica la
+estimación antes de calcular $u[k]$; el predictor utiliza la innovación
+para construir el estado estimado de la siguiente muestra.
+Aunque el estimador actual utiliza información más reciente, no
+proporciona por sí mismo un menor tiempo de establecimiento: en este
+caso, ambos comportamientos son muy semejantes.
+
+La norma de error inicial reportada por el estimador actual está
+calculada \emph{después} de corregir su predicción con $y[0]$,
+mientras que la del predictor es previa a esa corrección. Por ello
+no debe compararse directamente la altura inicial de las curvas
+como si representaran el mismo instante de cálculo.
+En condiciones ideales, ambas arquitecturas presentan convergencia
+del error; resta estudiar ruido, cuantización y retardos reales.
+
+\subsection{Ensayos experimentales pendientes}
+Para cada diseño deberán medirse los tiempos de establecimiento,
+los sobrepasamientos, el error estacionario, el máximo y el RMS del
+esfuerzo, y el efecto del ruido. La comparación MATLAB--banco requiere
+datos exportados del Rigol DS1202Z-E y calibraciones ADC/DAC actuales.
+No se atribuyen las métricas nominales al hardware físico.
