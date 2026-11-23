@@ -1,46 +1,61 @@
 \section{Modelado y discretización}
-\subsection{Modelo continuo}
-A partir del diagrama analógico de la guía oficial, con definición explícita
-de los nodos que constituyen el vector de estados, se construirá
+\subsection{Identificación de estados y modelo nominal}
+Según la Fig.~1 de la guía oficial, la planta central comprende dos
+etapas inversoras. Se la distingue de los acondicionadores DAC y ADC.
+Sea $x_1$ la salida de la primera etapa y $x_2$ la segunda salida,
+que es la única señal medida: $y=x_2$. Las ecuaciones ideales son
 \begin{align}
- \dot{\mathbf{x}}(t) &= F\mathbf{x}(t)+G u(t),\\
- y(t)&=H\mathbf{x}(t)+J u(t).
+C_1\dot x_1+\frac{x_1}{R_5}&=-\frac{u}{R_6},\\
+C_3\dot x_2+\frac{x_2}{R_1}&=-\frac{x_1}{R_2}.
 \end{align}
-Para una planta de segundo orden y una sola salida medida,
-\(F\in\mathbb R^{2\times2}\), \(G\in\mathbb R^{2\times1}\),
-\(H\in\mathbb R^{1\times2}\) y \(J\in\mathbb R\).
-Las matrices numéricas, los valores R--C y las unidades se incorporarán
-cuando se confirme el circuito físico; no se copiarán de un informe ajeno.
-
-\subsection{Selección justificada del muestreo}
-La selección de \(T_s\) precede al cálculo de \(A\) y \(B\). Se estudiarán la
-frecuencia característica más rápida, el ancho de banda de diseño, la
-relación de muestreo exigida en clase y las cuentas enteras del temporizador
-\cite{samanta2024,fadali2020}. La frecuencia efectiva será
+Por lo tanto,
 \begin{equation}
- f_s = \frac{1}{T_s},\qquad \omega_s=\frac{2\pi}{T_s}.
+F=\begin{bmatrix}-1/(R_5C_1)&0\\-1/(R_2C_3)&-1/(R_1C_3)\end{bmatrix},\quad
+G=\begin{bmatrix}-1/(R_6C_1)\\0\end{bmatrix},
 \end{equation}
-El valor definitivo de \(T_s\) queda \emph{pendiente de verificación};
-no se adopta por defecto el de los laboratorios anteriores.
+\begin{equation}
+H=\begin{bmatrix}0&1\end{bmatrix},\qquad J=0.
+\end{equation}
+La guía fija $R_5=\SI{150}{\kilo\ohm}$, $R_6=\SI{47}{\kilo\ohm}$,
+$R_1=\SI{15}{\kilo\ohm}$, $R_2=\SI{47}{\kilo\ohm}$ y
+$C_1=C_3=\SI{100}{\nano\farad}$. El modelo numérico nominal es
+\begin{equation}
+F=\begin{bmatrix}-66.6667&0\\-212.7660&-666.6667\end{bmatrix},\quad
+G=\begin{bmatrix}-212.7660\\0\end{bmatrix},
+\end{equation}
+con transferencia
+\begin{equation}
+G_p(s)=\frac{45269.35}{s^2+733.3333s+44444.44}.
+\end{equation}
+La ganancia continua es $1.01856$ y sus polos son $-66.6667$ y
+$-666.6667$ rad/s. Estas magnitudes provienen del \emph{esquema nominal},
+no de una nueva identificación experimental. El Laboratorio 5
+conserva un modelo identificado con constantes de tiempo diferentes.
 
-\subsection{Modelo discreto con retenedor de orden cero}
-Para mando constante entre muestras (ZOH),
+\subsection{Selección preliminar del muestreo}
+El ancho de banda nominal es
+$\omega_{BW}\simeq\SI{65.861}{\radian\per\second}$
+($f_{BW}\simeq\SI{10.482}{\hertz}$). Se adopta provisionalmente
+$T_s=\SI{2}{\milli\second}$ ($f_s=\SI{500}{\hertz}$):
+$f_s/f_{BW}\simeq47.70$, superior al criterio práctico $30f_{BW}$
+de los antecedentes de clase. El reloj histórico de \SI{100}{\kilo\hertz}
+requeriría 200 cuentas, \texttt{Period=199} si se conserva esa
+configuración. La temporización real se verificará con Rigol DS1202Z-E.
+
+\subsection{Discretización y propiedades}
+Para un retenedor de orden cero,
 \begin{align}
- A &= e^{FT_s}, & B &= \int_{0}^{T_s} e^{F\tau}G\,d\tau,\\
- C &= H, & D &= J. 
+A&=e^{FT_s}, & B&=\int_0^{T_s}e^{F\tau}G\,d\tau,\\
+C&=H, &D&=J.
 \end{align}
-De ese modo,
-\begin{equation}\label{eq:planta_discreta}
-\mathbf{x}[k+1]=A\mathbf{x}[k]+Bu[k],\quad y[k]=C\mathbf{x}[k]+Du[k].
-\end{equation}
-El cálculo se verificará con \texttt{c2d(ss(F,G,H,J),Ts,'zoh')}.
-
-\subsection{Controlabilidad y observabilidad}
-Antes de asignar polos se comprobarán
+Con $T_s=\SI{2}{\milli\second}$,
 \begin{equation}
- \mathcal C=[B\;AB],\qquad
- \mathcal O=\begin{bmatrix} C\\CA\end{bmatrix},
+A=\begin{bmatrix}0.875173&0\\-0.216871&0.263597\end{bmatrix},
+\quad B=\begin{bmatrix}-0.398383\\0.057929\end{bmatrix}.
 \end{equation}
-y se exigirá \(\operatorname{rango}(\mathcal C)=
-\operatorname{rango}(\mathcal O)=2\). La observabilidad debe verificarse
-\emph{desde el único canal de salida} disponible en el experimento.
+Se verifican
+$\mathrm{rango}[B\ \ AB]=\mathrm{rango}
+\begin{bmatrix}C\\CA\end{bmatrix}=2$. El modelo es controlable
+y observable desde la única salida medida. Los valores fueron
+contrastados numéricamente de forma independiente; el script
+\texttt{validar\_nominal\_lab7.m} reproduce la verificación en MATLAB.

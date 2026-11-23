@@ -3,9 +3,14 @@ function d = disenar_lab7(p)
 % Requiere Control System Toolbox: ss, c2d, ctrb, obsv, place.
 % De acuerdo con el enunciado: un solo canal de salida y una entrada.
 
-assert(isfield(p,'validado') && p.validado, ...
-    ['MODELO DE LAB7 SIN VALIDAR. Edite modelo_lab7.m con el circuito ' ...
-     'REAL, justifique Ts y recien entonces establezca p.validado=true.']);
+% Se permite el modelo NOMINAL de la guia SOLO PARA SIMULACION.
+permite_nominal = isfield(p,'simulacion_nominal') && p.simulacion_nominal && ...
+    isfield(p,'origen_modelo') && strcmp(p.origen_modelo,'GUIA_OFICIAL_NOMINAL');
+assert(isfield(p,'validado') && (p.validado || permite_nominal), ...
+    'Modelo no validado y sin origen nominal oficial documentado.');
+if ~p.validado
+    warning('SOLO SIMULACION: modelo nominal, NO validado fisicamente.');
+end
 F=p.F; G=p.G; H=p.H; J=p.J;
 assert(isequal(size(F),[2 2]) && isequal(size(G),[2 1]) && ...
        isequal(size(H),[1 2]) && isscalar(J), 'Dimensiones incompatibles.');
@@ -33,7 +38,8 @@ Nr=1/den;
 
 d=struct('A',A,'B',B,'C',C,'D',D,'K',K,'Nr',Nr, ...
          'Ts_s',p.Ts_s,'polos_control',pc,'F',F,'G',G,'H',H, ...
-         'revision_modelo',p.revision_modelo);
+         'revision_modelo',p.revision_modelo, ...
+         'validado_fisicamente',p.validado);
 d.observadores=struct('nombre',{},'polos',{},'L_pred',{},'L_actual',{});
 for i=1:numel(p.polos_estimador)
     po=p.polos_estimador{i}(:).';

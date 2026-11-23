@@ -2,7 +2,7 @@
 % No ejecuta ensayos fisicos ni supone resultados medidos.
 clear; clc; close all;
 p=modelo_lab7();
-d=disenar_lab7(p);  % Bloquea ejecucion si p.validado=false.
+d=disenar_lab7(p);  % Nominal SOLO para simulaciones.
 carpeta=fileparts(mfilename('fullpath'));
 destino=fullfile(carpeta,'..','05_Resultados');
 if ~isfolder(destino), mkdir(destino);end
@@ -13,10 +13,11 @@ for i=1:numel(d.observadores)
     s=simular_lab7(d,p,i,modo{1});
     n=n+1;
     nombre=sprintf('lab7_%s_%s',modo{1},d.observadores(i).nombre);
-    tu=table(s.t_s(1:end-1).',s.r_V(1:end-1).', ...
+    tipo_dato=repmat(string('SIMULACION_NOMINAL_GUIA'),numel(s.u_V),1);
+    tu=table(tipo_dato,s.t_s(1:end-1).',s.r_V(1:end-1).', ...
        s.y_V(1:end-1).',s.u_V(:),s.norma_error(1:end-1).', ...
        s.saturado(:), 'VariableNames', ...
-       {'tiempo_s','referencia_V','salida_V','mando_V','error_estimacion','saturado'});
+       {'tipo_dato','tiempo_s','referencia_V','salida_V','mando_V','error_estimacion','saturado'});
     writetable(tu,fullfile(destino,[nombre,'.csv']));
     f=figure('Color','w','Name',nombre,'Visible','off');
     tiledlayout(3,1,'TileSpacing','compact');
@@ -37,4 +38,5 @@ for i=1:numel(d.observadores)
   end
 end
 save(fullfile(destino,'lab7_diseno.mat'),'d','p');
-fprintf('Generados %d conjuntos SIMULADOS. No hay datos experimentales Lab7.\n',n);
+fprintf('Generados %d conjuntos SIMULADOS CON MODELO NOMINAL.\n',n);
+fprintf('NINGUNO es medicion de Lab7 ni ajuste listo para hardware.\n');
