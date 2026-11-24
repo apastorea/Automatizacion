@@ -75,3 +75,13 @@ Temporización basada en el anuncio `# LAB7 inicio` (que precede la espera de 3 
 Si es necesario volver a la estrategia anterior por flanco, usar `--estrategia fisica --nivel-trigger 0.035 --instante-respaldo 3.025`. El lanzador CMD de Lab7 usa la estrategia temporizada por defecto. Importante: si el programa informa STOP antes de 3,025 s y no guarda el escalón, comprobar la posición CH1=J5, el cableado y las escalas; aumentar más el umbral podría superar el rango del trigger de 20 mV/div.
 
 La implementación está revisada en el repositorio, pero todavía **no está probada con el Rigol físico desde esta modificación**.
+
+## 2026-11-24 — Contraste y ruido: comparación cuantitativa Lab5/Lab7
+
+Revisados los CSV originales de Lab5, ensayo `lab5_identificado_TS1_deadbeat_50mV_zerocorr_final_20261121_175752` (ventana 40–80ms), y captura Lab7 `20261124_004102` (meseta estable 65–180ms).
+
+- Lab5 CH1 8.44mV desviación estándar; CH2 5.79mV. Configuración Lab5: CH1=50mV/div, CH2=20mV/div y HRES, BW20M.
+- Lab7 CH1 3.00mV; CH2 11.57mV. Antes del ajuste, CH1 y CH2 = 20mV/div, HRES, BW20M. Ambos conjuntos comparados son de modos diferentes (control en Lab5 vs abierto Lab7); las desviaciones incluyen posibles variaciones reales de la señal, no son por sí solas una medida metrológica de ruido de osciloscopio.
+- La nueva versión del script usa de forma predeterminada CH1=50mV/div, CH2=20mV/div y **no sobrescribe el offset vertical** durante la configuración. Separar las trazas con las perillas POSITION del Rigol y conservar la disposición entre capturas. El límite de banda y HRES ya coincidían con Lab5, por lo que su mera activación no explica el ruido residual CH2.
+- Prueba de aislamiento sin barrido de calibración: con la alimentación apagada mover la punta de CH2 de J7 a GND del mismo punto de la PCB, mantener clip de masa en GND, reencender y observar la dispersión. Si el ruido disminuye mucho, está en J7/la ruta de medida/cableado; si persiste, investigar sonda/masa/USB/masa compartida. Volver a J7 con la alimentación apagada.
+- Evitar afirmar que PNG filtrado o gráficos suavizados reflejan una mejora física; conservar siempre la traza cruda. Los CSV de pantalla solo contienen 1200 puntos cada uno, y el ruido rápido puede estar submuestreado/aliased; no adjudicar su frecuencia sin adquisición más rápida.
