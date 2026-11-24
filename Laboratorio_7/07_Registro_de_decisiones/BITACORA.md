@@ -112,3 +112,11 @@
 - CH1: promedio -31.0 mV pretrigger y 2379.92 mV posestímulo (delta +2410.92 mV). CH2: +16.652 mV y +11.500 mV (delta -5.152 mV).
 - No es aún un escalón de 50 mV validado de J5 porque no está confirmado el nodo CH1: antes fue solicitado J9. UART en ensayos anteriores detenía el firmware en k=0 por flags=32.
 - Ver `04_Ensayos/ANALISIS_CAPTURA_RIGOL_20261123_223413.md`. No confundir trazas con resultados de control E1/E2.
+
+## 2026-11-23 — Ensayo ABIERTO: adquisición UART completa
+
+- Usuario ejecutó `capturar_uart_monitor_lab7.m` tras restablecer el enlace del ADC: cabecera `modo=ABIERTO`; 256 filas, 13.906 bytes, `# LAB7 END; DAC=0`.
+- Primera muestra k=0: t_us=0, adc_counts=2069, adc_mV=2354, y_cal=0mV, y_rel=0mV, u_solicitada=0, cpu_us=45, flags=0.
+- Muestras finales: k=254 t_us=508000, adc_mV=2355, y_rel=1mV, cpu_us=45, intervalo_us=2001, flags=0; k=255 t_us=509999, adc_mV=2355, y_rel=1mV, cpu_us=46, intervalo_us=1999, flags=0.
+- El script guardó `Lab7_UART_20261123_225357/uart_bruto.txt` y `monitor_lab7.csv` **solo en la PC del usuario**. Aún no están disponibles como adjuntos ni en GitHub para verificar las muestras intermedias.
+- El bloqueo previo con flags=32 ya no se manifestó; la señal del ADC se estabilizó cerca del offset histórico. No afirmar todavía ganancia de planta ni respuesta al escalón: falta verificar `u_solicitada` en k32..127 y capturar físicamente CH1=J5, CH2=J7 con Rigol.
