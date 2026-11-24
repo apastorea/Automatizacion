@@ -45,7 +45,8 @@ def configurar_rigol(scope, args):
         scope.write(f":{canal}:PROB 10")
         scope.write(f":{canal}:BWL 20M")
         scope.write(f":{canal}:SCAL {escala:.9g}")
-        scope.write(f":{canal}:OFFS 0")
+        # Conservar el desplazamiento vertical establecido por el operador
+        # para mantener CH1 y CH2 separados visualmente en pantalla.
     scope.write(":ACQ:TYPE HRES")  # alta resolucion, reduccion de ruido de muestra unica
     scope.write(":TIM:MODE MAIN")
     scope.write(f":TIM:SCAL {args.escala_tiempo:.9g}")
@@ -221,9 +222,10 @@ def generar_parser():
                    default="ABIERTO")
     p.add_argument("--salida", type=Path, default=Path(__file__).resolve().parents[2] /
                    "Laboratorio_7" / "04_Ensayos" / "Capturas_Sincronizadas")
-    p.add_argument("--escala-ch1", type=float, default=0.02,
-                   help="Voltios/div CH1; 0.02 = 20 mV/div")
-    p.add_argument("--escala-ch2", type=float, default=0.02)
+    p.add_argument("--escala-ch1", type=float, default=0.05,
+                   help="Voltios/div CH1; 0.05 = 50 mV/div (como Lab5)")
+    p.add_argument("--escala-ch2", type=float, default=0.02,
+                   help="Voltios/div CH2; 0.02 = 20 mV/div")
     p.add_argument("--escala-tiempo", type=float, default=0.05,
                    help="Segundos/div; 0.05 = 50 ms/div")
     p.add_argument("--estrategia", choices=("temporizada", "fisica"),
