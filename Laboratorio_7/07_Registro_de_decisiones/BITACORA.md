@@ -215,3 +215,13 @@
 - Ganancias independientes calculadas para candidato: Lpred=[-1.31786653;0.43877046], Lactual=[-1.50583491;0.42564406], K y Nr sin cambios.
 - Se publicó `01_Modelado_MATLAB/comparar_E1_original_y_redisenado_lab7.m` para contrastar respuesta temporal E1 original y candidato ante referencia de 50mV en t=64ms, planta Lab5 identificada, saturación ±120mV y cuantización DAC/ADC, con escenarios de ruido hipotético 0 y 10mV RMS. Genera CSV y PNG; pendiente ejecutarlo en MATLAB R2026b real del usuario.
 - Se conservarán trazas y diseño original como referencia académica sin mezclar datos de distintos polos. Lazo cerrado aún deshabilitado.
+
+## 2026-11-24 — Se recibieron main.c y lab7_config.h reales de PSoC Creator
+
+- Archivos originales proporcionados por el usuario: `main(2).c` y `lab7_config.h`, respaldados sin alterar en `02_Firmware_PSoC_5LP/Preparacion_E1_Alternativo/Originales`.
+- En origen activo: `LAB7_MODO_LAZO_ABIERTO`, `LAB7_ESTIMADOR_VARIANTE=1`, escalón autorizado y las tres autorizaciones de cierre a 0. Mantiene interrupción cada ~2ms, 256 muestras, referencias de 50mV y protecciones F_ADC, F_LIMITE, F_NUM, F_CPU, F_TIEMPO, F_Y.
+- En firmware original se siguen usando ganancias E1 originales: Lpred=[-1.32931421;0.33877046], Lactual=[-1.51891537;0.03551549]. El núcleo `lab7_estimadores.c` corrige la memoria después de leer DAC nominal, sin cambiar la forma de UART.
+- La HAL Lab5 del repo limita salida previa a ±1V (LAB5_OUTPUT_*), y cuantiza a ~15.370448 mV/código positivo y ~10.560423 mV/código negativo. Por redondeo, +120 mV solicitado podría dar +122.963584 mV nominal.
+- Se creó una **propuesta independiente NO ACTIVA** en `02_Firmware_PSoC_5LP/Preparacion_E1_Alternativo/Propuesta`: E1 alt z=.35±j.10 con Lpred=[-1.31786653;.43877046], Lactual=[-1.50583491;.42564406], límites pre-DAC [-.115,+.107] V, comprobación posterior al HAL ±.120V, bloqueo por saturación y cabecera UART de versión; E2, K y Nr intactos.
+- Por seguridad la propuesta se deja en MONITOR, sin escalón ni control cerrado autorizado. GCC con stubs de interfaces PSoC pasó verificación sintáctica en MONITOR, PRED y ACTUAL (simulados), y confirmó que sin autorizaciones no se puede compilar modo cerrado. No es una compilación real de PSoC Creator ni una validación del hardware.
+- Se generó ZIP de originales, propuesta, diferencias y manual en la conversación. **Pendiente revisar HAL activa local del Lab7 y TopDesign** contra versión del repositorio, compilar MONITOR en una copia del proyecto y ensayar salida DAC=0 antes de autorizar cualquier controlador físico.
