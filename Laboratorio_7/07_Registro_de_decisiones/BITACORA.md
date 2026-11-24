@@ -144,3 +144,12 @@
 - Delta CH1=44.5889mV; Delta CH2=44.7156mV; ganancia aparente por medición simultánea 1.00284. Compatible con esquema nominal 1.01856 y modelo identificado Lab5 1.00294.
 - Confirmar que CH1 estaba en J5 y CH2 en J7; de otro modo no etiquetar la relación como ganancia de planta.
 - Se cambió el lanzador de doble clic para descargar PNG original y CSV en una sola ejecución rápida.
+
+## 2026-11-23 — Capturador sincronizado Lab7 (nuevo)
+
+- Se adaptó el comportamiento de las herramientas originales lab4_ensayo_sincronizado.py y lab5_captura_monitor_rigol.m al protocolo real de Lab7.
+- Script creado: Herramientas_Comunes/Rigol_y_UART/lab7_ensayo_sincronizado.py.
+- Lanzador de doble clic: Laboratorio_7/04_Ensayos/capturar_lab7_sincronizado.cmd.
+- Sincronización: detecta '# LAB7 inicio;', arma :SING tras 0.5s, antes de LAB7_INICIO_MS=3000; después descarga UART con '# LAB7 END;', dos CSV del Rigol, PNG y metadatos.
+- No modifica el PSoC ni fuerza el trigger. Exige 256 filas, flags=0, coincidencia de modo y excursión de CH1 para etiquetar la captura preliminar como válida.
+- Prueba offline: serial simulado y Rigol simulado con 256 muestras, estado STOP y pulso de 45 mV; verificó seis archivos y armado 0.6s después de inicio. **Pendiente de ejecución en banco con equipo real.**
