@@ -3,7 +3,7 @@
 % No modifica DAC, ADC, Timer ni ningun parametro del hardware.
 % PASOS: abrir COM4, ejecutar este script, presionar una vez SW3 RESET
 % en el KitProg DURANTE la ventana de captura (NO mantener presionado).
-% Mantener deshabilitadas las salidas de la fuente y separado J8-J5.
+% MONITOR: fuente deshabilitada y J8-J5 aislado; ABIERTO: fuente bipolar encendida y puentes J8-J5 y J9-P0[2] restablecidos previamente con todo apagado.
 % Si J9-P0[2] esta aislado, el ADC puede marcar F_ADC y finalizar antes.
 %
 % Guarda captura cruda con fecha en 04_Ensayos/Monitor_UART_...
@@ -19,8 +19,8 @@ idFecha = char(datetime('now','Format','yyyyMMdd_HHmmss'));
 carpetaSalida = fullfile(carpetaEnsayos, [char(nombreEnsayo) idFecha]);
 mkdir(carpetaSalida);
 
-fprintf('\nLAB7 MONITOR: abriendo %s a %d 8N1.\n',puerto,baudios);
-fprintf('No habilites lazo cerrado ni fuente para este ensayo UART.\n');
+fprintf('\nLAB7 UART: abriendo %s a %d 8N1 (MONITOR/ABIERTO/OBSERVADOR).\n',puerto,baudios);
+fprintf('Este script SOLO LEE UART; prepara fuente y conexiones segun el modo compilado.\n');
 fprintf('Al aparecer INICIADA, pulsa UNA VEZ el boton SW3 (RESET/BOOT) del KitProg.\n');
 fprintf('No es SW1 (boton de usuario). No mantengas SW3 mientras reconectas USB.\n');
 puertoLab7 = serialport(puerto, baudios, 'Timeout', 2);
@@ -73,4 +73,4 @@ if ~isempty(lineas)
     fprintf('\nULTIMAS LINEAS RECIBIDAS:\n');
     disp(join(lineas(max(1,numel(lineas)-3):end),newline));
 end
-fprintf('\nInterpretacion: MONITOR debe solicitar DAC=0. ADC puede fallar si J9 esta desconectado.\n');
+fprintf('\nInterpretacion: revise modo y flags; para ABIERTO use J9 ADC y J8-J5 conectados, con alimentacion correcta.\n');
