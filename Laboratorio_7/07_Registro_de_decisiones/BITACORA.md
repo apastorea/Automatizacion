@@ -206,3 +206,12 @@
 - El núcleo C aislado `lab7_estimadores.c` compiló y pasó `test_portable.c` con GCC. Esto no sustituye PSoC Creator ni pruebas en placa.
 - Se detectó además diferencia para pruebas justas: MATLAB previo usa `x_estimado0=[.02;-.01]` y referencia desde 20ms; firmware inicia estimación en cero y referencia desde k=32 (64ms). No comparar tiempos directamente sin alinear excitación y estados iniciales.
 - **No se modificaron enclavamientos ni se programó el PSoC**. Próximo: ejecutar las tres auditorías MATLAB, estudiar rediseño de E1 Actual si se confirma la sensibilidad y entonces planificar ensayo físico seguro.
+
+## 2026-11-24 — Confirmación MATLAB R2026b de riesgo en Actual E1
+
+- El usuario compartió los resultados de `explorar_polos_E1_robustos_lab7` y el gráfico comparativo de `evaluar_robustez_observadores_lab7`.
+- Modelo de planta identificado Lab5: radios espectrales (Predictor/Actual): E1 original 0.91084/1.04870; alternativa 0.35±j0.10 0.85497/0.87367; alternativa 0.30±j0.10 0.84120/0.84014; E2 original 0.82880/0.82512.
+- Dado que el sistema lineal Actual E1 original tiene rho>1, se mantiene NO-GO para su implementación física sin rediseño. E1 candidato 0.35±j0.10 no ha sido aplicado al firmware ni sustituye E1 en los resultados ya emitidos.
+- Ganancias independientes calculadas para candidato: Lpred=[-1.31786653;0.43877046], Lactual=[-1.50583491;0.42564406], K y Nr sin cambios.
+- Se publicó `01_Modelado_MATLAB/comparar_E1_original_y_redisenado_lab7.m` para contrastar respuesta temporal E1 original y candidato ante referencia de 50mV en t=64ms, planta Lab5 identificada, saturación ±120mV y cuantización DAC/ADC, con escenarios de ruido hipotético 0 y 10mV RMS. Genera CSV y PNG; pendiente ejecutarlo en MATLAB R2026b real del usuario.
+- Se conservarán trazas y diseño original como referencia académica sin mezclar datos de distintos polos. Lazo cerrado aún deshabilitado.
