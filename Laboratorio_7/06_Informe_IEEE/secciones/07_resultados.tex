@@ -13,9 +13,10 @@ Los cuatro gráficos fueron remitidos por el estudiante.
 Las métricas se obtuvieron mediante una reproducción numérica
 independiente de \texttt{simular\_lab7.m}; el archivo
 \texttt{analizar\_metricas\_lab7.m} permite volver a calcularlas
-directamente en MATLAB y exportarlas a CSV. Todos los resultados de esta
-sección son \emph{simulaciones con modelo nominal}; todavía no hay
-mediciones físicas de la planta.
+directamente en MATLAB y exportarlas a CSV. Las métricas de observadores presentadas a continuación corresponden a
+\emph{simulaciones nominales}. La planta, por separado, ya fue evaluada
+experimentalmente en lazo abierto; aún no hay comparaciones físicas
+con observadores implementados en lazo cerrado.
 
 \begin{table}[t]
 \centering
@@ -100,10 +101,72 @@ ruido de medición, cuantización ADC/DAC, error de modelo ni
 retardo de cálculo; por consiguiente, estos resultados no
 permiten afirmar que E2 sea más robusto en hardware.
 
-\subsection{Ensayos experimentales pendientes}
-Se debe revalidar la planta y las calibraciones ADC/DAC a partir
-del montaje físico, comprobar $T_s$ y el plazo de cómputo con el
-Rigol DS1202Z-E y registrar sobrepasamiento, establecimiento,
-error estacionario y esfuerzo mediante datos reales. La elección
-definitiva se hará después de cuantificar la sensibilidad al
-ruido y las diferencias MATLAB--PSoC.
+\subsection{Validación física en lazo abierto}
+Se efectuó un pulso solicitado de \SI{50}{\milli\volt}, de
+\SI{192}{\milli\second} de duración, sobre la PCB original del
+Laboratorio 5. El osciloscopio Rigol DS1202Z-E adquirió simultáneamente
+el mando físico de J5 (CH1) y la salida J7 (CH2).
+La lectura UART del PSoC 5LP proporcionó 256 filas sin banderas,
+mediana de período de muestreo de \SI{2000}{\micro\second}
+y máximo de ejecución de ISR de \SI{55}{\micro\second}.
+
+Se compararon valores medios sobre dos ventanas respecto del disparo
+temporizado del osciloscopio: reposo de \SI{-250}{\milli\second}
+a \SI{-100}{\milli\second} y meseta de
+\SI{70}{\milli\second} a \SI{160}{\milli\second}.
+La resta de niveles de reposo permite estimar la ganancia incremental
+sin atribuir a la planta los offsets de instrumentación.
+
+\begin{table}[t]
+\centering
+\caption{Resultados físicos preliminares de la planta en lazo abierto.}
+\label{tab:abierto_fisico}
+\small
+\begin{tabular}{@{}lr@{}}
+\toprule
+Magnitud & Resultado\\
+\midrule
+Muestras UART & 256\\
+Muestras Rigol por canal & 1200\\
+Incremento físico J5 (\si{\milli\volt}) & 45,08\\
+Incremento físico J7 (\si{\milli\volt}) & 44,31\\
+Ganancia experimental incremental & 0,9831\\
+Ganancia nominal & 1,0186\\
+Diferencia relativa (\%) & -3,48\\
+RMSE nominal (\si{\milli\volt}) & 11,06\\
+RMSE modelo Lab5 (\si{\milli\volt}) & 10,84\\
+Banderas no nulas en UART & 0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La comparación con ambos modelos utilizó como excitación la entrada
+física medida en J5, no el escalón digital solicitado al DAC.
+El ruido del canal J7 contribuye a ambos RMSE; la diferencia
+entre ellos no justifica declarar superioridad concluyente de un modelo.
+Este ensayo confirma coherencia de la planta, pero no demuestra
+todavía el funcionamiento de los estimadores.
+
+\subsection{Estructura de resultados según el antecedente de Luis Morel}
+La guía requiere las estructuras de predicción y estado actual, junto
+con dos ubicaciones de polos E1/E2. Como antecedente metodológico,
+Luis Morel presenta dieciséis figuras de simulación (cuatro por caso)
+y ocho experimentales (predictor E1 y actual E1): respuesta,
+esfuerzo de control, salida medida frente a estimación y error observable.
+Nuestras simulaciones se reportarán en figuras individuales con las
+mismas categorías, pero no con datos ni etiquetas copiados del antecedente.
+En nuestro modelo discreto se utiliza $C=[0\quad 1]$; en consecuencia,
+la salida observable es $y=x_2$ y el error es
+$e_y=y-C\hat{x}$, no el error del estado interno no medido $x_1$.
+Las respuestas ante cambio de referencia y los ensayos de convergencia
+del observador se conservarán diferenciados.
+
+\subsection{Ensayos de observadores aún pendientes}
+Se deben validar las condiciones y protecciones del firmware, implementar
+el predictor E1 y el estimador actual E1 en lazo cerrado usando únicamente
+estados estimados, y adquirir simultáneamente por UART y Rigol las respuestas.
+Para cada arquitectura se requiere cuantificar el esfuerzo de control,
+el seguimiento de referencia y el error de estimación observable, y
+contrastar con MATLAB. E2 ya fue simulado y puede evaluarse también
+en hardware una vez comprobada la sensibilidad al ruido y la operación
+dentro de límites seguros.
