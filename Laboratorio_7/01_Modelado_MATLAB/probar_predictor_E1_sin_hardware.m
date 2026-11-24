@@ -62,10 +62,16 @@ fprintf('   OK: modelo de regla de parada para cada bandera\n');
 fprintf('4) AUDITORIA DE TEXTO del main.c ACTIVO (sin ejecutarlo)\n');
 raiz=fullfile(fileparts(mfilename('fullpath')),'..','02_Firmware_PSoC_5LP',...
    'Preparacion_E1_Alternativo');
-archivo=fullfile(raiz,'Lab7_E1_Alternativo.cydsn','main.c');
-cfg=fullfile(raiz,'Lab7_E1_Alternativo.cydsn','lab7_config.h');
+% Primero auditar la PROPUESTA versionada, cuya ruta SI existe en Git.
+% No confundirla con el proyecto compilado dentro de PSoC Creator:
+% este puede estar fuera del arbol versionado o excluido por .gitignore.
+archivo=fullfile(raiz,'Propuesta','main.c');
+cfg=fullfile(raiz,'Propuesta','lab7_config.h');
 assert(isfile(archivo)&&isfile(cfg), ...
-    'No se hallo el proyecto local de PSoC Creator en la ruta prevista.');
+    'No se hallaron los dos archivos de Propuesta; revisar git pull.');
+fprintf('   Fuente revisada (NO necesariamente el firmware compilado):\\n');
+fprintf('   %s\\n',archivo);
+fprintf('   %s\\n',cfg);
 codigoC=fileread(archivo);config=fileread(cfg);
 assert(contains(codigoC,'-1.31786653f') && ...
        contains(codigoC,'0.43877046f'), ...
@@ -77,6 +83,6 @@ assert(contains(codigoC,'F_LIMITE') && ...
        'No se encontro comprobacion del limite DAC.');
 assert(contains(config,'LAB7_MODO_PREDICCION'), ...
        'No se encontro definicion del modo predictor.');
-fprintf('   OK: cadenas clave presentes. No prueba ejecucion real C/ISR.\n');
+fprintf('   OK: cadenas clave en PROPUESTA. No verifica el proyecto compilado.\n');
 fprintf('\nRESULTADO: 4 pruebas basicas OK. No programar placa solo con esto.\n');
 fprintf('Pendiente: pruebas dinamicas del C compilado y protecciones en banco.\n');
