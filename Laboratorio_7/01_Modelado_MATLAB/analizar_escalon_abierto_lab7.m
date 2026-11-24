@@ -11,7 +11,7 @@ carpetas = carpetas([carpetas.isdir]);
 assert(~isempty(carpetas), 'No hay carpetas Lab7_UART_* en 04_Ensayos.');
 
 % Elegir el ensayo ABIERTO mas reciente con un pulso de mando real en CSV
-[~, orden] = sort({carpetas.name}, 'descend');
+[~, orden] = sort(string({carpetas.name}), 'descend');
 archivo = '';
 for j = orden
     candidato = fullfile(carpetas(j).folder, carpetas(j).name, 'monitor_lab7.csv');
