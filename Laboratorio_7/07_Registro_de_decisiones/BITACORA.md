@@ -196,3 +196,13 @@
 - UART: 256 muestras, Ts mediana 2000us, intervalos 1999..2001us, tiempo máximo CPU=55us, 96 muestras con mando solicitado 50mV, ninguna bandera distinta de 0; el CSV nominal indica 46mV DAC durante el pulso.
 - Metadatos: `ensayo_valido_preliminar=true`, pulso detectado, `disparo_forzado=true`, `trigger_fisico_confirmado=false`; esto es correcto y **no invalida** la respuesta física: el osciloscopio usó disparo SCPI temporizado y sí detectamos un pulso en CSV.
 - Pendiente: validar dinámica mediante ajuste/contraste de modelos nominal e identificado Lab5 con desfase instrumental estimado; la señal CH2 continúa más ruidosa (~10-11mV RMS), aunque el promedio por meseta permite medir amplitud con cautela. No activar lazo cerrado hasta validar el observador y condiciones previstas.
+
+## 2026-11-24 — Revisión pre-cierre: estabilidad real no garantizada para Actual E1
+
+- Tras ejecutar correctamente la comparación física ABIERTO vs modelos, se inspeccionó la plantilla exacta de firmware `Lab7.cydsn/main.c`, `lab7_config.h`, el núcleo portable y la guía oficial del enunciado.
+- Comprobación numérica independiente del lazo aumentado con planta de Lab5 identificada (K=1.002941, tau1=9.06915ms, tau2=.774399ms): radio espectral Pred E1=.911, Actual E1=1.049, Pred E2=.829 y Actual E2=.825. Con planta nominal todos .838. Actual E1 bajo modelo identificado supera el círculo unidad: NO habilitar sin rediseño y revalidación.
+- Polos alternativos para E1 0.35±j0.1 dan rho Pred=.855, Actual=.874 en el mismo contraste (solo candidato, no incorporado a firmware).
+- Se agregaron `01_Modelado_MATLAB/evaluar_robustez_observadores_lab7.m`, `simular_no_ideal_observadores_lab7.m`, `explorar_polos_E1_robustos_lab7.m` y `04_Ensayos/VALIDACION_PRE_CERRADO_E1.md`.
+- El núcleo C aislado `lab7_estimadores.c` compiló y pasó `test_portable.c` con GCC. Esto no sustituye PSoC Creator ni pruebas en placa.
+- Se detectó además diferencia para pruebas justas: MATLAB previo usa `x_estimado0=[.02;-.01]` y referencia desde 20ms; firmware inicia estimación en cero y referencia desde k=32 (64ms). No comparar tiempos directamente sin alinear excitación y estados iniciales.
+- **No se modificaron enclavamientos ni se programó el PSoC**. Próximo: ejecutar las tres auditorías MATLAB, estudiar rediseño de E1 Actual si se confirma la sensibilidad y entonces planificar ensayo físico seguro.
