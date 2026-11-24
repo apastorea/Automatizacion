@@ -25,9 +25,9 @@ El archivo CMD convierte estas etiquetas al modo esperado, pero no elige la vari
 
 ## Sincronizacion exacta
 
-El archivo Lab7.cydsn/main.c de la plantilla de Lab7 emite '# LAB7 inicio; ... espera 3s' ANTES del inicio del Timer_TS. Al detectar ese aviso, Python espera 0.5 s, envia :SING al Rigol y espera el pulso. El firmware inicia adquisicion 3 s despues del aviso; el pulso abierto comienza en k=32 (64 ms despues del inicio de muestreo) y finaliza en k=128 (256 ms). El script no usa :TFOR; solo trata STOP despues de SINGLE como posible captura fisica.
+El firmware Lab7 anuncia `# LAB7 inicio; ... espera 3s` antes de iniciar el temporizador. Al detectar ese aviso, Python arma `:SING` aproximadamente **2.25 s** después, para evitar el transitorio del RESET. A los **2.85 s** comprueba si ocurrió un disparo espurio temprano y, de ser así, vuelve a armar. A los **3.15 s** (cuando el pulso de k=32 ya comenzó), si el Rigol sigue `WAIT`/`RUN`/`AUTO`, manda **`:TFOR`** como respaldo temporizado, a la manera del Lab5. Si ya indica `STOP` o `TD`, conserva el disparo físico sin forzarlo. En ABIERTO el pulso va de 64 ms a 256 ms desde el inicio de adquisición, equivalente a 3.064-3.256 s después del anuncio. Con 50 ms/div se cubren aproximadamente 600 ms alrededor del disparo.
 
-Configura CH1/CH2 a 20 mV/div, 50 ms/div horizontal, trigger CH1 ascendente a 35 mV. Si cambia el nivel de reposo, ajustar --nivel-trigger con voltios absolutos, por ejemplo 0.040.
+Configura CH1/CH2 a 20 mV/div y 50 ms/div horizontal, con flanco ascendente CH1 a 35 mV. El tiempo programado de `:TFOR` se registra en `sincronizacion.instante_TFOR_s`. Para evitar forzar el disparo usar `--sin-respaldo`. Si cambia el nivel de reposo, ajustar el umbral con `--nivel-trigger` (voltios absolutos), por ejemplo `0.045`.
 
 ## Archivos generados
 
@@ -38,8 +38,24 @@ Dentro de Laboratorio_7/04_Ensayos/Capturas_Sincronizadas/<fecha>_<etiqueta>/:
 - psoc_uart.csv: 256 filas esperadas, con columnas de tiempo, ADC, DAC, estados estimados y flags.
 - metadatos.json: modo solicitado/detectado, filas, errores, tiempos, estado de trigger y evaluacion preliminar.
 
-VALIDACION PRELIMINAR: True significa que coincidio el modo, se recibieron 256 filas con flags=0, SINGLE llego a STOP y, en ABIERTO, se detecto una excursion visible en CH1. No implica validacion metrologica completa.
+VALIDACION PRELIMINAR: True significa que coincidió el modo, llegaron 256 filas con flags=0, `SINGLE` terminó en STOP y, en ABIERTO, se detectó en CH1 **una meseta de al menos 20 mV durante 100 ms**. El método se guarda explícitamente como `sincronizacion.disparo_forzado` y `configuracion_rigol.trigger_forzado`. Con `:TFOR` el campo `trigger_fisico_confirmado` debe ser falso, aunque se haya medido un pulso válido. No equivale a validación metrológica completa; el operador debe verificar CH1=J5, CH2=J7 y rangos físicos.
 
-Si no hay flanco, el script guarda lo disponible como diagnostico y lo marca no valido. No mezclar capturas sin flanco con resultados experimentales de la planta.
+Si no hay flanco y se utiliza :TFOR, el script guarda el evento *si aparece físicamente en la ventana*. Si no hay meseta, lo marca no válido y lo conserva como diagnóstico. No declarar ganancia ni constantes de tiempo a partir de capturas que solo contienen ruido. El script no puede comprobar por sí solo el nodo al que conectaste la sonda.
 
 Este capturador fue probado sin hardware mediante simulacion de COM4 y Rigol. Esta pendiente la primera ejecucion con el equipo real.
+
+## Comprobaciones previas al uso
+
+- El programa no modifica firmware. Los modos `PREDICCION` y `ACTUAL` solo se ensayan después de compilar y programar el PSoC para cada variante, manteniendo límites y protecciones.
+- Cerrar MATLAB o cualquier cliente que ocupe COM4/USB VISA antes de ejecutar. Si parece detenido en «Conectando RIGOL USB VISA...», cerrar el proceso anterior con Ctrl+C y comprobar que ningún otro programa use el instrumento.
+- Ejecución explícita con recurso exacto y respaldo activado:
+
+```powershell
+python -u ".\Herramientas_Comunes\Rigol_y_UART\lab7_ensayo_sincronizado.py" --resource "USB0::0x1AB1::0x0517::DS1ZE275014864::INSTR" --modo-esperado ABIERTO --label abierto_respaldo
+```
+
+- Prueba aislada sin respaldo (solo flanco real): agregar `--sin-respaldo`.
+
+## Pruebas de regresión sin hardware
+
+La lógica de sincronización se ejercitó con un puerto serie simulado y un Rigol simulado: escenario con flanco físico (no debe emitir TFOR) y sin flanco (debe emitir un solo TFOR a 3.15 s). El detector separó correctamente las dos trazas reales subidas por el usuario: pulso anterior de aproximadamente 45 mV y captura posterior solo con ruido. La versión con respaldo publicada requiere todavía una ejecución instrumental real.
