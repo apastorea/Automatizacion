@@ -210,6 +210,7 @@ def build_parser() -> argparse.ArgumentParser:
     bundle = subparsers.add_parser("bundle", help="Captura PNG, CSV de ambos canales y metadatos.")
     bundle.add_argument("--label", default="lab4")
     bundle.add_argument("--root", type=Path, default=Path("capturas_rigol"))
+    bundle.add_argument("--quick", action="store_true", help="Captura imagen y formas de onda primero, omitiendo mediciones lentas.")
     return parser
 
 
@@ -217,8 +218,18 @@ def main() -> int:
     args = build_parser().parse_args()
     manager = instrument = None
     try:
+        print("Conectando con el Rigol por USB VISA...", flush=True)
         manager, instrument, resource_name = connect(args.resource)
-        metadata = instrument_metadata(instrument, resource_name)
+        print(f"Recurso detectado: {resource_name}", flush=True)
+        metadata = (
+            {
+                "timestamp_local": datetime.now().astimezone().isoformat(timespec="seconds"),
+                "resource": resource_name,
+                "modo_captura": "quick",
+            }
+            if args.command == "bundle" and args.quick
+            else instrument_metadata(instrument, resource_name)
+        )
 
         if args.command == "info":
             metadata["measurements"] = collect_measurements(instrument)
@@ -239,17 +250,24 @@ def main() -> int:
         elif args.command == "bundle":
             folder = timestamped_folder(args.root.resolve(), args.label)
             folder.mkdir(parents=True, exist_ok=False)
+            print(f"Carpeta de captura: {folder}", flush=True)
+            print("Descargando imagen de pantalla...", flush=True)
             save_screenshot(instrument, folder / "pantalla.png")
+            print("Pantalla guardada: pantalla.png", flush=True)
             waveform_info = {}
             for channel in ("CHAN1", "CHAN2"):
+                print(f"Descargando forma de onda {channel}...", flush=True)
                 time_s, voltage_v, info = acquire_screen_waveform(instrument, channel)
                 save_waveform_csv(folder / f"{channel.lower()}.csv", time_s, voltage_v)
                 waveform_info[channel] = info
-            metadata["measurements"] = collect_measurements(instrument)
+                print(f"{channel}: {len(time_s)} puntos guardados.", flush=True)
             metadata["waveforms"] = waveform_info
-            metadata["system_errors_after_capture"] = drain_system_errors(instrument)
+            if not args.quick:
+                print("Consultando mediciones y diagnostico SCPI...", flush=True)
+                metadata["measurements"] = collect_measurements(instrument)
+                metadata["system_errors_after_capture"] = drain_system_errors(instrument)
             save_json(folder / "metadatos.json", metadata)
-            print(folder)
+            print(f"CAPTURA COMPLETA: {folder}", flush=True)
 
         return 0
     except Exception as exc:
