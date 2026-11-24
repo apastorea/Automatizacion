@@ -79,3 +79,11 @@
 - Comunicación USB-TMC / VISA / SCPI confirmada con el mismo número de serie y firmware que la configuración de Lab5. Todavía NO se han realizado mediciones de tensión/corriente de la PCB.
 - Atención: el archivo histórico `Laboratorio_5/PSoC_5LP/Lab5.cydsn/lab5_experiment.h` define `LAB5_MODE=LAB5_MODE_CONTROL`; no supone el firmware cargado físicamente, ni habilita a energizar sin verificar su modo real.
 - Próximo paso: comprobar fuentes de alimentación con la placa desenergizada, confirmar ausencia de control activo y luego medir en reposo con instrumentación.
+
+## 2026-11-23 — Primera compilación y programación física del firmware Lab7 (confirmadas por capturas)
+
+- Usuario mostró `LAB7_MODO_MONITOR`, `LAB7_AUTORIZAR_ESCALON=0`, `LAB7_PLANTA_VERIFICADA=0`, `LAB7_ADC_DAC_REVALIDADOS=0` y `LAB7_AUTORIZAR_LAZO_CERRADO=0` en PSoC Creator.
+- `Build Succeeded`: Flash 9136/262144 bytes (3.5%), SRAM 14905/65536 bytes (22.7%).
+- Dispositivo `PSoC 5LP CY8C5888LTI-LP097` programado y verificado correctamente, reportado a las 21:55:43 (hora en captura).
+- Se añadió script `capturar_uart_monitor_lab7.m` para captura de COM4 a 57600, sin activar hardware ni lazo cerrado.
+- Siguiente verificación pendiente: captura de UART con encabezado MONITOR y medición posterior del periodo real; el éxito de Flash NO prueba el comportamiento analógico ni la adquisición.
