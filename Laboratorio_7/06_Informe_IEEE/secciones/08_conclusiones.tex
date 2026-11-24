@@ -1,14 +1,28 @@
 \section{Conclusiones y trabajo pendiente}
-La guía oficial establece un contraste experimental entre control con
-estimador de predicción y con estimador actual. En esta etapa quedó
-definida una metodología reproducible para modelar, verificar
-controlabilidad/observabilidad, asignar polos, simular ambas estructuras
-y documentar su implementación. Se conservó la trazabilidad de las
-calibraciones históricas del Laboratorio 5 sin atribuirles vigencia
-automática para el nuevo circuito.
+La cadena de adquisición y actuación heredada del Laboratorio 5 fue
+contrastada mediante un ensayo físico de planta en lazo abierto,
+registrando las tensiones de J5 y J7 con el Rigol DS1202Z-E
+y la telemetría del PSoC 5LP. Las 256 muestras con período mediano
+de \SI{2}{\milli\second} y ninguna bandera de error evidencian
+funcionamiento correcto de esta fase de instrumentación.
+La ganancia experimental incremental resultó aproximadamente
+$0{,}983$, frente a la ganancia nominal $1{,}0186$,
+con diferencia relativa de \SI{-3,48}{\percent}; sin embargo,
+el ruido en J7 limita la inferencia sobre la forma precisa
+del transitorio y las constantes de tiempo.
 
-\textbf{Conclusión final pendiente:} deberá redactarse a partir de
-mediciones del Laboratorio 7 y del contraste cuantitativo con MATLAB,
-indicando diferencias, causas técnicas, limitaciones y cumplimiento de
-los objetivos. Esta redacción preliminar no sustituye la conclusión
-experimental exigida por la cátedra.
+El modelo discreto nominal resultó controlable y observable.
+Las simulaciones con estimadores de predicción y estado actual
+muestran la influencia de las ubicaciones de polos E1 y E2
+sobre la rapidez de convergencia del error. Esta observación
+todavía es una conclusión de \emph{simulación}, no una
+verificación del desempeño físico de los observadores.
+
+\textbf{Conclusión final pendiente:} para completar la práctica
+se deberán implementar ambas estructuras en el PSoC con
+realimentación exclusivamente de estados estimados, verificar
+márgenes de seguridad y cuantificar respuesta temporal,
+esfuerzo de control y error observable en experimentos
+comparables con MATLAB. No se atribuyen al montaje propio
+las mediciones experimentales publicadas en informes de
+compañeros.
