@@ -1,17 +1,17 @@
 % CAPTURAR_UART_MONITOR_LAB7
-% Capta telemetria del firmware Lab7 en modo MONITOR mediante COM4.
+% Captura telemetria del firmware Lab7 por COM4 en MONITOR, ABIERTO, PREDICCION o ACTUAL.
 % No modifica DAC, ADC, Timer ni ningun parametro del hardware.
 % PASOS: abrir COM4, ejecutar este script, presionar una vez SW3 RESET
 % en el KitProg DURANTE la ventana de captura (NO mantener presionado).
 % MONITOR: fuente deshabilitada y J8-J5 aislado; ABIERTO: fuente bipolar encendida y puentes J8-J5 y J9-P0[2] restablecidos previamente con todo apagado.
 % Si J9-P0[2] esta aislado, el ADC puede marcar F_ADC y finalizar antes.
 %
-% Guarda captura cruda con fecha en 04_Ensayos/Monitor_UART_...
+% Guarda captura cruda con fecha en 04_Ensayos/Lab7_UART_...
 clear puertoLab7;
 puerto = "COM4";
 baudios = 57600;
 duracion_s = 20;
-nombreEnsayo = "Monitor_UART_";
+nombreEnsayo = "Lab7_UART_";
 carpetaScript = fileparts(mfilename('fullpath'));
 carpetaEnsayos = fullfile(carpetaScript, '..', '04_Ensayos');
 if ~isfolder(carpetaEnsayos), mkdir(carpetaEnsayos); end
