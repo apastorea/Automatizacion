@@ -105,3 +105,10 @@
 - Se definió el ensayo único de coherencia en lazo abierto de 50 mV (J5 y J7 físicos, 2ms), seguido de cuatro ensayos con observadores: predicción E1/E2 y actual E1/E2.
 - Captura previa en MONITOR confirmó comunicación UART pero no validez del ADC (k=0, flag F_Y=32 con acondicionador no alimentado o aislado). El primer ensayo abierto requiere restituir J9--P0[2] y J8--J5 con todas las fuentes apagadas, y mantener protecciones de firmware.
 - Guía operativa: `04_Ensayos/ENSAYO_01_ESCALON_ABIERTO.md`. Se conserva advertencia de que proyecto Lab7 PSoC Creator está actualmente local, no subido automáticamente.
+
+## 2026-11-23 — Primera captura de datos del Rigol por USB
+
+- El usuario aportó `pantalla.png`, `chan1.csv`, `chan2.csv` y `metadatos.json`; se verificaron 1200 muestras por canal y ventana de 120 ms. Metadatos: 22:34:13-03:00.
+- CH1: promedio -31.0 mV pretrigger y 2379.92 mV posestímulo (delta +2410.92 mV). CH2: +16.652 mV y +11.500 mV (delta -5.152 mV).
+- No es aún un escalón de 50 mV validado de J5 porque no está confirmado el nodo CH1: antes fue solicitado J9. UART en ensayos anteriores detenía el firmware en k=0 por flags=32.
+- Ver `04_Ensayos/ANALISIS_CAPTURA_RIGOL_20261123_223413.md`. No confundir trazas con resultados de control E1/E2.
