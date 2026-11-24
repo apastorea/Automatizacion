@@ -128,3 +128,11 @@
 - Aproximación visual: Delta y ~39mV; Delta u nominal ~46.1mV; K aparente ~0.85. No es una identificación de ganancia física de planta (falta CH1=J5).
 - Se prepara script `analizar_escalon_abierto_lab7.m` con tabla y contraste frente al modelo nominal y al identificado Lab5, sin reajustar calibraciones.
 - Pendiente urgente: captura simultánea Rigol J5/J7 durante un solo escalón y evaluar consistencia para desbloquear observador E1. No volver a barrido largo de calibración.
+
+## 2026-11-23 — Segunda captura Rigol: datos transferidos, pero sin pulso
+
+- Se recibieron los CSV del Rigol en modo quick, 1200 puntos por canal, 0.5ms por punto, ventana temporal 600ms, pantalla STOP, escalas 20mV/div.
+- CH1 media 14.026mV, mínimo 10.4mV, máximo 18.4mV; CH2 media 10.766mV, mínimo -1.6mV, máximo 27.2mV.
+- Trigger capturado en pantalla ~25.2mV por flanco CH1, umbral que **no se alcanzó** en ningún punto del CH1 exportado. No se detecta pulso de 192ms ni meseta de la respuesta en CH2.
+- Evidencia de transferencia de datos USB operativa, NO de captura del estímulo real. Ver `04_Ensayos/ANALISIS_CAPTURA_RIGOL_20261123_231651_SIN_ESCALON.md`.
+- Siguiente acción: armar SINGLE antes de SW3 y comprobar WAIT/STOP y meseta amarilla; elevar trigger a ~35mV entre reposo de ~14mV y pulso esperado ~60mV.
