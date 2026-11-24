@@ -221,13 +221,13 @@ def main(argv=None):
         # nunca se etiqueta como ensayo fisico valido.
         estado = scope.query(":TRIG:STAT?").strip()
         meta["estado_rigol_antes_stop"] = estado
+        meta["rigol_finalizo_single"] = (estado == "STOP")
         if estado != "STOP":
-            print(f"ATENCION: Rigol estado {estado}, SIN trigger fisico confirmado; se detiene para diagnostico.",flush=True)
+            print(f"ATENCION: Rigol estado {estado}; se detiene para diagnostico.",flush=True)
             scope.write(":STOP")
-            meta["trigger_fisico_confirmado"] = False
         else:
-            print("RIGOL: SINGLE terminó en STOP; se conserva el evento.",flush=True)
-            meta["trigger_fisico_confirmado"] = True
+            print("RIGOL: SINGLE terminó en STOP; falta corroborar el pulso en CH1.",flush=True)
+        meta["trigger_fisico_confirmado"] = False
         for canal in ("CHAN1","CHAN2"):
             t0 = time.perf_counter()
             print(f"Guardando {canal}...",flush=True)
@@ -244,11 +244,18 @@ def main(argv=None):
         save_screenshot(scope,carpeta/"pantalla.png")
         print(f"PNG guardado en {time.perf_counter()-t0:.2f} s",flush=True)
         meta["duracion_total_s"] = round(time.perf_counter()-inicio,3)
+        # STOP solo indica que SINGLE terminó. Una captura vieja, un disparo
+        # espurio o ruido no prueban que el pulso ABIERTO ocurriera en CH1.
+        # Conservar ambos diagnósticos por separado, sin confundirlos.
+        excursion = meta.get("variacion_robusta_CH1_V", 0.0)
+        meta["pulso_ch1_detectado"] = bool(excursion >= 0.020)
+        meta["trigger_fisico_confirmado"] = bool(
+            meta["rigol_finalizo_single"] and meta["pulso_ch1_detectado"])
         meta["ensayo_valido_preliminar"] = bool(
-            meta["trigger_fisico_confirmado"] and fin and modo==args.modo_esperado
+            meta["rigol_finalizo_single"] and fin and modo==args.modo_esperado
             and meta["uart"]["filas_uart"] == 256
             and meta["uart"]["filas_flags_no_cero"] == 0
-            and (modo!="ABIERTO" or meta["variacion_robusta_CH1_V"]>=0.01)
+            and meta["pulso_ch1_detectado"]
         )
         save_json(carpeta/"metadatos.json",meta)
         print(f"CAPTURA COMPLETA: {carpeta}",flush=True)
