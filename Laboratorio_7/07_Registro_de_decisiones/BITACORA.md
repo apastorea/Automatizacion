@@ -153,3 +153,12 @@
 - Sincronización: detecta '# LAB7 inicio;', arma :SING tras 0.5s, antes de LAB7_INICIO_MS=3000; después descarga UART con '# LAB7 END;', dos CSV del Rigol, PNG y metadatos.
 - No modifica el PSoC ni fuerza el trigger. Exige 256 filas, flags=0, coincidencia de modo y excursión de CH1 para etiquetar la captura preliminar como válida.
 - Prueba offline: serial simulado y Rigol simulado con 256 muestras, estado STOP y pulso de 45 mV; verificó seis archivos y armado 0.6s después de inicio. **Pendiente de ejecución en banco con equipo real.**
+
+## 2026-11-23 23:47 — Primera captura sincronizada Lab7: UART válida, evento Rigol no capturado
+
+- Archivos aportados por usuario: \`psoc_uart.csv\`, \`psoc_uart.txt\`, \`chan1(4).csv\`, \`chan2(4).csv\`, \`metadatos(4).json\`, \`pantalla(3).png\`. Su contenido sigue adjunto a la conversación; originales aún no volcados al repositorio.
+- UART: 256 filas, todas flags=0, Ts mediana 2000us, CPU máxima 55us, pulso pedido 50mV por 96 muestras (k32..k127), DAC nominal 46mV. ADC registra respuesta de 5mV de reposo a 43–49mV durante pulso y vuelve a 0–5mV.
+- Rigol: CH1 1200 puntos, 0.5ms de resolución visual, min 12.8mV, max 22.4mV, media 16.901mV; CH2 min -4.0mV, max 31.2mV, media 13.159mV con oscilación/ruido. Ningún pulso físico de ~45mV en CH1. Variación robusta CH1 = 5.6mV.
+- Capturador previo etiquetaba trigger_fisico_confirmado=true solo por estado STOP, aunque el propio validador preliminar decía false. Se corrigió en \`lab7_ensayo_sincronizado.py\`: separar \`rigol_finalizo_single\` de \`pulso_ch1_detectado\` y exigir pulso robusto >=20mV además de STOP.
+- Esta captura sirve para validar telemetría y automatización de adquisición, pero **NO** para cálculo de ganancia física ni comparación dinámica con Rigol. Existe una captura anterior de CSV CH1/CH2 con pulso físico ~44.59/44.72mV y ganancia preliminar ~1.003, más apropiada para el ensayo de planta.
+- Siguiente intento opcional, sin cambiar firmware, con umbral 45mV y armado a 2.0s del aviso de inicio para evitar transitorios: \`python -u .../lab7_ensayo_sincronizado.py --modo-esperado ABIERTO --label abierto_trigger45 --nivel-trigger 0.045 --demora-armado 2.0\`.
