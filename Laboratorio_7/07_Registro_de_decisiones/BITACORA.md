@@ -98,3 +98,10 @@
 - Si J9 está desconectado, o si el acondicionador no está energizado, la señal ADC carece de validez física; no diagnosticar falla PSoC con esta lectura.
 - El ciclo de 45 us de una ISR y `intervalo_us=0` para k=0 NO validan periodicidad de 2 ms.
 - Próximo ensayo: verificar alimentaciones y rango de tensión en J9 con multímetro, restituir J9-P0[2] con fuentes apagadas, y repetir MONITOR manteniendo J8-J5 aislado.
+
+## 2026-11-23 — Transición a mediciones propias de Lab7
+
+- El usuario solicitó evitar repetir pruebas extensas de Lab5 y pasar a las mediciones directamente relacionadas con la guía.
+- Se definió el ensayo único de coherencia en lazo abierto de 50 mV (J5 y J7 físicos, 2ms), seguido de cuatro ensayos con observadores: predicción E1/E2 y actual E1/E2.
+- Captura previa en MONITOR confirmó comunicación UART pero no validez del ADC (k=0, flag F_Y=32 con acondicionador no alimentado o aislado). El primer ensayo abierto requiere restituir J9--P0[2] y J8--J5 con todas las fuentes apagadas, y mantener protecciones de firmware.
+- Guía operativa: `04_Ensayos/ENSAYO_01_ESCALON_ABIERTO.md`. Se conserva advertencia de que proyecto Lab7 PSoC Creator está actualmente local, no subido automáticamente.
