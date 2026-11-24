@@ -1,5 +1,5 @@
 % Laboratorio 7 de Automatizacion - Informe IEEE editable.
-% Documento de INICIO: no atribuye resultados experimentales de Lab7.
+% Informe en progreso: ensayo ABIERTO real incorporado; observadores físicos aún pendientes.
 % Guia oficial con encabezado erroneo "Laboratorio 6".
 \documentclass[conference,10pt]{IEEEtran}
 \usepackage[T1]{fontenc}
@@ -35,7 +35,10 @@ La cadena de adquisición y actuación se documenta a partir de los antecedentes
 del Laboratorio 5 y se establece un protocolo de revalidación con el osciloscopio
 Rigol DS1202Z-E. Se obtuvo el modelo nominal del esquema oficial, se discretizó
 a \SI{2}{\milli\second} y se verificó controlabilidad y observabilidad.
-Las mediciones y la validación física siguen pendientes.
+Se validó físicamente la planta en lazo abierto: se registraron
+simultáneamente el pulso en J5 y la salida en J7 mediante el
+Rigol DS1202Z-E y 256 muestras por UART en el PSoC.
+La implementación y evaluación física de los dos observadores sigue pendiente.
 \end{abstract}
 \begin{IEEEkeywords}
 control digital, estimación de estados, observador de predicción,
