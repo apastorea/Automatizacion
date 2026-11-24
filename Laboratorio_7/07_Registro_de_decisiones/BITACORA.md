@@ -136,3 +136,11 @@
 - Trigger capturado en pantalla ~25.2mV por flanco CH1, umbral que **no se alcanzó** en ningún punto del CH1 exportado. No se detecta pulso de 192ms ni meseta de la respuesta en CH2.
 - Evidencia de transferencia de datos USB operativa, NO de captura del estímulo real. Ver `04_Ensayos/ANALISIS_CAPTURA_RIGOL_20261123_231651_SIN_ESCALON.md`.
 - Siguiente acción: armar SINGLE antes de SW3 y comprobar WAIT/STOP y meseta amarilla; elevar trigger a ~35mV entre reposo de ~14mV y pulso esperado ~60mV.
+
+## 2026-11-23 — Tercera captura Rigol: pulso real identificado en los CSV
+
+- `chan1(3).csv`, `chan2(3).csv` y `metadatos(3).json` aportados por usuario, analizados en Python; modo de transferencia quick data, 0.554s, 1200 puntos/canal, 0.5ms de incremento temporal.
+- Pulso CH1 de -193.5 a -1ms en tiempo relativo; medias antes/meseta CH1 15.5133/60.1022mV y CH2 11.9600/56.6756mV.
+- Delta CH1=44.5889mV; Delta CH2=44.7156mV; ganancia aparente por medición simultánea 1.00284. Compatible con esquema nominal 1.01856 y modelo identificado Lab5 1.00294.
+- Confirmar que CH1 estaba en J5 y CH2 en J7; de otro modo no etiquetar la relación como ganancia de planta.
+- Se cambió el lanzador de doble clic para descargar PNG original y CSV en una sola ejecución rápida.
