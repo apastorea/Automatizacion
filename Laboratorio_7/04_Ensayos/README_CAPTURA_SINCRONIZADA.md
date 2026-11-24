@@ -59,3 +59,19 @@ python -u ".\Herramientas_Comunes\Rigol_y_UART\lab7_ensayo_sincronizado.py" --re
 ## Pruebas de regresión sin hardware
 
 La lógica de sincronización se ejercitó con un puerto serie simulado y un Rigol simulado: escenario con flanco físico (no debe emitir TFOR) y sin flanco (debe emitir un solo TFOR a 3.15 s). El detector separó correctamente las dos trazas reales subidas por el usuario: pulso anterior de aproximadamente 45 mV y captura posterior solo con ruido. La versión con respaldo publicada requiere todavía una ejecución instrumental real.
+
+## 2026-11-24 — Actualización: ventana temporizada y reducción de ruido
+
+Ante la evidencia de que el Rigol se detenía en STOP sin un pulso válido mientras UART sí mostraba las 256 muestras, el **modo predeterminado ahora es `--estrategia temporizada`**. Configura `:ACQ:TYPE HRES` para reducir ruido aleatorio en la traza única, y un umbral de 85 mV en CH1 (mayor que el escalón ABIERTO esperado en J5, menor que el rango de disparo de ±5 divisiones a 20 mV/div). No depende de cruces espurios del umbral cercano a 35 mV.
+
+Temporización basada en el anuncio `# LAB7 inicio` (que precede la espera de 3 s):
+
+- A 2,25 s: `:SING`, el Rigol queda esperando.
+- A 2,85 s: si terminó por ruido, rearma.
+- A 3,025 s: si sigue WAIT, envía `:TFOR`; el pulso ABIERTO inicia aprox. 3,064 s y termina en 3,256 s. La ventana del Rigol de ±300 ms alrededor del disparo contiene ambas transiciones, si no hay desfase inesperado.
+
+**Nunca confundir `:TFOR` con un escalón físico generado por el instrumento:** `:TFOR` solo detiene la adquisición; el pulso lo genera el PSoC. El script continúa exigiendo pulso sostenido en CH1, 256 muestras y banderas en cero.
+
+Si es necesario volver a la estrategia anterior por flanco, usar `--estrategia fisica --nivel-trigger 0.035 --instante-respaldo 3.025`. El lanzador CMD de Lab7 usa la estrategia temporizada por defecto. Importante: si el programa informa STOP antes de 3,025 s y no guarda el escalón, comprobar la posición CH1=J5, el cableado y las escalas; aumentar más el umbral podría superar el rango del trigger de 20 mV/div.
+
+La implementación está revisada en el repositorio, pero todavía **no está probada con el Rigol físico desde esta modificación**.
