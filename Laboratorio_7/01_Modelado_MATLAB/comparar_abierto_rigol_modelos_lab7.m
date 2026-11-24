@@ -7,7 +7,7 @@ raiz=fullfile(carpeta,'..','04_Ensayos','Capturas_Sincronizadas');
 assert(isfolder(raiz),'No existe carpeta de capturas sincronizadas.');
 dirs=dir(raiz);dirs=dirs([dirs.isdir]);
 dirs=dirs(~ismember({dirs.name},{'.','..'}));
-[~,orden]=sort({dirs.name},'descend');
+[~,orden]=sort(string({dirs.name}),'descend');
 fuente='';
 for j=orden
     carpetaC=fullfile(dirs(j).folder,dirs(j).name);
