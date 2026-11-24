@@ -57,16 +57,21 @@ def configurar_rigol(scope, args):
 
 
 def leer_uart_y_armar(uart, scope, args):
-    """Lee el protocolo real del Lab7. No fuerza triggers ni envía UART."""
+    """Usa el arranque UART como reloj para SINGLE y el disparo de respaldo."""
     recibido = bytearray()
     pendiente = bytearray()
     inicio_anunciado = None
     armado = False
     fin = False
     modo = None
+    rearme_revisado = False
+    respaldo_revisado = False
+    disparo_forzado = False
+    estado_rearme = None
+    estado_respaldo = None
+    tfor_s = None
     deadline = time.monotonic() + args.timeout
-    print("LISTO: UART COM4 y Rigol preparados. Presioná SW3 UNA VEZ ahora.",
-          flush=True)
+    print("LISTO: UART y Rigol preparados. Presioná SW3 UNA VEZ ahora.", flush=True)
     while time.monotonic() < deadline:
         n = uart.in_waiting
         if n:
@@ -81,8 +86,11 @@ def leer_uart_y_armar(uart, scope, args):
                 linea = linea_bytes.decode("ascii", errors="replace").strip()
                 if linea.startswith("# LAB7 inicio;"):
                     inicio_anunciado = time.monotonic()
-                    print("PSoC: aviso de arranque detectado; esperando antes de armar SINGLE...",
-                          flush=True)
+                    armado = False
+                    rearme_revisado = False
+                    respaldo_revisado = False
+                    disparo_forzado = False
+                    print("PSoC: aviso de arranque detectado.", flush=True)
                 elif linea.startswith("# LAB7 datos "):
                     match = re.search(r"\bmodo=([A-Z_]+)", linea)
                     if match:
@@ -91,16 +99,71 @@ def leer_uart_y_armar(uart, scope, args):
                 elif linea.startswith("# LAB7 END;"):
                     fin = True
                     break
-        if (inicio_anunciado is not None and not armado and
-                time.monotonic() - inicio_anunciado >= args.demora_armado):
-            scope.write(":SING")
-            armado = True
-            print(f"RIGOL ARMADO: SINGLE después de {args.demora_armado:.2f} s del aviso UART.",
-                  flush=True)
+        if inicio_anunciado is not None:
+            transcurrido = time.monotonic() - inicio_anunciado
+            if not armado and transcurrido >= args.demora_armado:
+                scope.write(":SING")
+                armado = True
+                print(f"RIGOL ARMADO: SINGLE a t={transcurrido:.3f}s.", flush=True)
+            if (armado and not rearme_revisado and
+                    transcurrido >= args.instante_rearme):
+                estado_rearme = scope.query(":TRIG:STAT?").strip().upper()
+                rearme_revisado = True
+                if estado_rearme == "STOP":
+                    scope.write(":SING")
+                    print("RIGOL REARMADO: se detectó disparo previo al estímulo.", flush=True)
+            if (armado and not respaldo_revisado and
+                    transcurrido >= args.instante_respaldo):
+                estado_respaldo = scope.query(":TRIG:STAT?").strip().upper()
+                respaldo_revisado = True
+                if estado_respaldo in ("STOP", "TD"):
+                    print("RIGOL: disparo de flanco detectado; sin TFOR.", flush=True)
+                elif (not args.sin_respaldo and
+                      estado_respaldo in ("WAIT", "RUN", "AUTO")):
+                    scope.write(":TFOR")
+                    disparo_forzado = True
+                    tfor_s = time.monotonic() - inicio_anunciado
+                    print(f"RIGOL: :TFOR aplicado a t={tfor_s:.3f}s.", flush=True)
+                else:
+                    print(f"RIGOL: sin TFOR, estado={estado_respaldo}.", flush=True)
         if fin:
             break
         time.sleep(0.01)
-    return bytes(recibido), inicio_anunciado is not None, armado, fin, modo
+    return {"bruto": bytes(recibido), "anuncio": inicio_anunciado is not None,
+            "armado": armado, "fin": fin, "modo": modo,
+            "estado_rearme": estado_rearme, "estado_antes_respaldo": estado_respaldo,
+            "respaldo_revisado": respaldo_revisado,
+            "disparo_forzado": disparo_forzado, "instante_TFOR_s": tfor_s}
+
+
+def detectar_pulso_fisico(tiempo_s, voltaje_v, modo):
+    """Detecta una meseta, no solo excursiones pico a pico de ruido."""
+    t = np.asarray(tiempo_s, dtype=float).ravel()
+    y = np.asarray(voltaje_v, dtype=float).ravel()
+    r = {"pulso_detectado": False, "delta_ch1_mV": 0.,
+         "duracion_positiva_ms": 0., "baseline_mV": None}
+    if len(y) < 60 or len(t) != len(y) or not np.all(np.isfinite(y)):
+        return r
+    baseline = float(np.median(y[:max(30, len(y)//6)]))
+    ventana = min(21, max(5, len(y)//30))
+    kernel = np.ones(ventana, dtype=float)/ventana
+    suave = np.convolve(np.pad(y, (ventana//2, ventana//2), mode="edge"),
+                        kernel, mode="valid")
+    amplitud = float(np.quantile(suave, .90)-np.quantile(suave, .10))
+    r["delta_ch1_mV"] = round(amplitud*1000, 3)
+    r["baseline_mV"] = round(baseline*1000, 3)
+    max_duracion = 0.
+    if len(t)>1:
+        dt = float(np.median(np.diff(t)))
+        mascara = suave > baseline+0.020
+        cortes = np.flatnonzero(np.diff(np.r_[False,mascara,False]))
+        max_duracion = float(max((cortes[1::2]-cortes[::2])*dt, default=0.))
+        r["duracion_positiva_ms"] = round(max_duracion*1000, 3)
+    if modo == "ABIERTO":
+        r["pulso_detectado"] = bool(amplitud >= .020 and max_duracion >= .100)
+    elif modo != "MONITOR":
+        r["pulso_detectado"] = bool(amplitud >= .010)
+    return r
 
 
 def guardar_uart(carpeta: Path, bruto: bytes):
@@ -162,8 +225,14 @@ def generar_parser():
                    help="Segundos/div; 0.05 = 50 ms/div")
     p.add_argument("--nivel-trigger", type=float, default=0.035,
                    help="Nivel absoluto en voltios; adaptar si cambia el offset")
-    p.add_argument("--demora-armado", type=float, default=0.5,
+    p.add_argument("--demora-armado", type=float, default=2.25,
                    help="Segundos después del aviso de inicio (debe ser < 3 s)")
+    p.add_argument("--instante-rearme", type=float, default=2.85,
+                   help="Rearmar SINGLE si ocurrió un disparo de arranque")
+    p.add_argument("--instante-respaldo", type=float, default=3.15,
+                   help="Aplicar :TFOR si continúa WAIT a este segundo")
+    p.add_argument("--sin-respaldo", action="store_true",
+                   help="Usar únicamente disparos físicos, sin :TFOR")
     p.add_argument("--timeout", type=float, default=45,
                    help="Tiempo total esperando el ciclo PSoC")
     return p
@@ -171,9 +240,9 @@ def generar_parser():
 
 def main(argv=None):
     args = generar_parser().parse_args(argv)
-    if not (0 <= args.demora_armado < 2.5):
-        print("ERROR: --demora-armado debe ser >=0 y <2.5s (firmware espera 3s).",
-              file=sys.stderr)
+    if not (0 <= args.demora_armado < args.instante_rearme < 3.0
+            < args.instante_respaldo < 3.5):
+        print("ERROR: requiere armado < rearme < 3s < respaldo < 3.5s.", file=sys.stderr)
         return 2
     if any(v<=0 for v in (args.escala_ch1,args.escala_ch2,args.escala_tiempo,args.timeout)):
         print("ERROR: escalas y timeout deben ser positivos.",file=sys.stderr)
@@ -192,7 +261,11 @@ def main(argv=None):
                                    "trigger_V":args.nivel_trigger,
                                    "fuente_trigger":"CHAN1",
                                    "flanco":"POS", "sweep":"NORM",
-                                   "trigger_forzado":False},
+                                   "trigger_forzado":False,
+                                   "demora_armado_s":args.demora_armado,
+                                   "instante_rearme_s":args.instante_rearme,
+                                   "instante_respaldo_s":args.instante_respaldo,
+                                   "respaldo_habilitado":not args.sin_respaldo},
             "firmware_requiere_inicio_ms":3000}
     manager = scope = None
     bruto = b""
@@ -207,9 +280,16 @@ def main(argv=None):
         print(f"Abriendo UART {args.port} a {args.baud} 8N1...",flush=True)
         with serial.Serial(args.port,args.baud,timeout=0.1) as uart:
             uart.reset_input_buffer()
-            bruto, anuncio, armado, fin, modo = leer_uart_y_armar(uart,scope,args)
+            sincronizacion = leer_uart_y_armar(uart,scope,args)
+        bruto = sincronizacion.pop("bruto")
+        anuncio = sincronizacion["anuncio"]
+        armado = sincronizacion["armado"]
+        fin = sincronizacion["fin"]
+        modo = sincronizacion["modo"]
         meta.update(anuncio_arranque=anuncio,rigol_armado=armado,
-                    uart_fin_recibido=fin,modo_detectado=modo)
+                    uart_fin_recibido=fin,modo_detectado=modo,
+                    sincronizacion=sincronizacion)
+        meta["configuracion_rigol"]["trigger_forzado"] = sincronizacion["disparo_forzado"]
         meta["uart"] = guardar_uart(carpeta,bruto)
         print(f"UART: {meta['uart']['filas_uart']} filas; fin={fin}; "
               f"flags !=0: {meta['uart']['filas_flags_no_cero']}",flush=True)
@@ -235,9 +315,9 @@ def main(argv=None):
             save_waveform_csv(carpeta/f"{canal.lower()}.csv",t,y)
             meta.setdefault("formas_onda",{})[canal] = detalles
             if canal == "CHAN1":
-                bajo = np.median(y[y <= np.quantile(y,0.25)])
-                alto = np.median(y[y >= np.quantile(y,0.75)])
-                meta["variacion_robusta_CH1_V"] = round(float(alto-bajo),6)
+                analisis = detectar_pulso_fisico(t, y, modo)
+                meta["analisis_pulso_ch1"] = analisis
+                meta["variacion_robusta_CH1_V"] = round(analisis["delta_ch1_mV"]/1000,6)
             print(f"{canal}: {len(t)} puntos en {time.perf_counter()-t0:.2f} s",flush=True)
         t0 = time.perf_counter()
         print("Guardando pantalla.png...",flush=True)
@@ -247,20 +327,22 @@ def main(argv=None):
         # STOP solo indica que SINGLE terminó. Una captura vieja, un disparo
         # espurio o ruido no prueban que el pulso ABIERTO ocurriera en CH1.
         # Conservar ambos diagnósticos por separado, sin confundirlos.
-        excursion = meta.get("variacion_robusta_CH1_V", 0.0)
-        meta["pulso_ch1_detectado"] = bool(excursion >= 0.020)
+        meta["pulso_ch1_detectado"] = meta["analisis_pulso_ch1"]["pulso_detectado"]
         meta["trigger_fisico_confirmado"] = bool(
-            meta["rigol_finalizo_single"] and meta["pulso_ch1_detectado"])
+            meta["rigol_finalizo_single"] and meta["pulso_ch1_detectado"]
+            and not sincronizacion["disparo_forzado"])
         meta["ensayo_valido_preliminar"] = bool(
             meta["rigol_finalizo_single"] and fin and modo==args.modo_esperado
             and meta["uart"]["filas_uart"] == 256
             and meta["uart"]["filas_flags_no_cero"] == 0
-            and meta["pulso_ch1_detectado"]
+            and (meta["pulso_ch1_detectado"] or modo=="MONITOR")
         )
         save_json(carpeta/"metadatos.json",meta)
         print(f"CAPTURA COMPLETA: {carpeta}",flush=True)
         print(f"VALIDACION PRELIMINAR: {meta['ensayo_valido_preliminar']}; "
-              f"variacion robusta CH1={meta['variacion_robusta_CH1_V']*1000:.2f} mV",flush=True)
+              f"pulso_CH1={meta['pulso_ch1_detectado']}; "
+              f"trigger_forzado={sincronizacion['disparo_forzado']}; "
+              f"cambio_CH1={meta['variacion_robusta_CH1_V']*1000:.2f} mV",flush=True)
         if not meta["ensayo_valido_preliminar"]:
             print("AVISO: conservar como diagnostico; revisar modo, flags, pulso y trigger.",flush=True)
         return 0
