@@ -79,3 +79,34 @@ una subcarpeta fechada dentro de `capturas_rigol`.
 
 La adquisición `waveform` usa el modo NORM del instrumento y descarga los
 1200 puntos visibles. No modifica las escalas ni la configuración de disparo.
+
+## Captura ultrarrápida para Laboratorio 7 (sin consultas adicionales)
+
+Con el osciloscopio en STOP después de SINGLE y las sondas CH1=J5 y CH2=J7, ejecutar desde la raíz del repositorio `Automatizacion/git`:
+
+```powershell
+git pull --ff-only origin main
+
+# Solo las curvas numéricas (dos CSV + metadatos básicos). Más ágil que una captura completa.
+python -u ".\Herramientas_Comunes\Rigol_y_UART\rigol_ds1202ze.py" bundle --quick --only data --label abierto_Lab7 --root ".\Laboratorio_7\04_Ensayos\Capturas_Rigol"
+```
+
+Opcionalmente capturar **solo imagen**:
+
+```powershell
+python -u ".\Herramientas_Comunes\Rigol_y_UART\rigol_ds1202ze.py" bundle --quick --only screen --label abierto_Lab7 --root ".\Laboratorio_7\04_Ensayos\Capturas_Rigol"
+```
+
+Para guardar imagen, CSV y metadatos mínimos en un mismo directorio:
+
+```powershell
+python -u ".\Herramientas_Comunes\Rigol_y_UART\rigol_ds1202ze.py" bundle --quick --only all --label abierto_Lab7 --root ".\Laboratorio_7\04_Ensayos\Capturas_Rigol"
+```
+
+Cada ejecución crea una carpeta con fecha propia. El script muestra los segundos consumidos en conexión, captura de pantalla y descarga de cada canal. Si `data` tarda muy poco pero `screen` tarda mucho, conviene guardar PNG únicamente en las capturas seleccionadas para el informe. Si incluso `data` tarda mucho, revisar los tiempos que imprime y conexiones USB/VISA.
+
+Opcional: añadir antes de `bundle` el argumento
+`--resource "USB0::0x1AB1::0x0517::DS1ZE275014864::INSTR"`
+para omitir el barrido de descubrimiento VISA del instrumento que ya identificamos. El identificador debe coincidir con el recurso PyVISA encontrado; no confundirlo con el recurso de MATLAB que incluye `::0::`.
+
+El modo `NORM` descarga los 1200 puntos visibles por canal (ideal para ensayos de respuesta temporal de decenas de ms); no es una exportación de toda la memoria profunda del osciloscopio. La adquisición debe estar detenida en STOP y el evento correctamente capturado por SINGLE antes de ejecutarse. No se modifican escalas ni el trigger.
