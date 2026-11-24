@@ -30,11 +30,19 @@ disp('GANANCIAS NUEVAS (solo para analisis, NO firmware):');
 fprintf('Lpred E1 alternativo: [%.9f; %.9f]\n',Lpred{2});
 fprintf('Lactual E1 alternativo: [%.9f; %.9f]\n',Lactual{2});
 
+% REVISION 2 (2026-11-24): recorte del CODIGO DAC tras redondeo.
 % Cuantizacion aproximada desde antecedentes del Lab5:
 deltaADC=0.00114/0.210251951; % V de salida por cuenta ADC
 deltaDACpos=0.004*3.842612;    % V en J5 por codigo DAC+
 deltaDACneg=0.004*2.640105691;% V en J5 por codigo DAC-
 limiteU=0.120;
+% No redondear el DAC fuera del limite fisico. Codigos maximos admitidos:
+codigoMaxPos=floor(limiteU/deltaDACpos);
+codigoMaxNeg=floor(limiteU/deltaDACneg);
+fprintf('DAC positivo maximo: %d codigos (%.3f mV)\n', ...
+    codigoMaxPos,1000*codigoMaxPos*deltaDACpos);
+fprintf('DAC negativo maximo: %d codigos (%.3f mV)\n', ...
+    codigoMaxNeg,1000*codigoMaxNeg*deltaDACneg);
 ruidos=[0,0.010];  % V RMS salida hipotética, NO medida ADC
 fila=0;
 for i=1:2
@@ -50,7 +58,7 @@ for i=1:2
             rng(7);
             perturbacion=ruidos(nr)*randn(N,1);
             x=zeros(2,1);xh_mem=zeros(2,1);
-            ys=zeros(N,1);uap=zeros(N,1);sat=0;
+            ys=zeros(N,1);uap=zeros(N,1);sat=0;satCodigo=0;
             for k=1:N
                 y=Cp*x;
                 yCuant=deltaADC*round((y+perturbacion(k))/deltaADC);
@@ -63,10 +71,17 @@ for i=1:2
                 uPedida=min(limiteU,max(-limiteU,uIdeal));
                 sat=sat+(abs(uIdeal-uPedida)>1e-9);
                 if uPedida>=0
-                    uReal=deltaDACpos*round(uPedida/deltaDACpos);
+                    codigoDeseado=round(uPedida/deltaDACpos);
+                    codigoAplicado=min(codigoMaxPos,max(0,codigoDeseado));
+                    uReal=deltaDACpos*codigoAplicado;
                 else
-                    uReal=-deltaDACneg*round(-uPedida/deltaDACneg);
+                    codigoDeseado=round(-uPedida/deltaDACneg);
+                    codigoAplicado=min(codigoMaxNeg,max(0,codigoDeseado));
+                    uReal=-deltaDACneg*codigoAplicado;
                 end
+                satCodigo=satCodigo+(codigoDeseado>codigoAplicado);
+                assert(abs(uReal)<=limiteU+1e-12, ...
+                    'DAC simulado fuera de limite fisico.');
                 xh_mem=A*xutil+B*uReal;
                 if ~esActual
                     xh_mem=xh_mem+L*innovacion;
@@ -83,12 +98,13 @@ for i=1:2
             salida_cola_mV(fila,1)=mean(ys(end-49:end))*1000; %#ok<SAGROW>
             control_max_mV(fila,1)=max(abs(uap))*1000; %#ok<SAGROW>
             saturaciones(fila,1)=sat; %#ok<SAGROW>
+            saturaciones_codigo_DAC(fila,1)=satCodigo; %#ok<SAGROW>
             respuesta{i,m,nr}=ys; %#ok<SAGROW>
         end
     end
 end
 T=table(caso,ruido_RMS_mV,salida_max_mV,salida_cola_mV, ...
-   control_max_mV,saturaciones);
+   control_max_mV,saturaciones,saturaciones_codigo_DAC);
 disp(T);
 
 destino=fullfile(fileparts(mfilename('fullpath')),'..','05_Resultados');
@@ -115,6 +131,8 @@ carpetaFig=fullfile(destino,'figuras');
 if ~isfolder(carpetaFig),mkdir(carpetaFig);end
 exportgraphics(fig,fullfile(carpetaFig, ...
    'comparacion_E1_original_alternativo.png'),'Resolution',220);
-fprintf('\nATENCION: resultados de SIMULACION, nunca mediciones de hardware.\n');
+fprintf('\nATENCION: SIMULACION REVISION 2, con limite fisico DAC; no comparar\n');
+fprintf('directamente con capturas MATLAB anteriores sin esta correccion.\n');
+fprintf('No es una medicion del hardware ni garantiza seguridad fisica.\n');
 fprintf('Antes de cualquier control cerrado se requieren revisar codigo PSoC,\n');
 fprintf('limites fisicos de DAC, protecciones y condiciones de lazo.\n');
