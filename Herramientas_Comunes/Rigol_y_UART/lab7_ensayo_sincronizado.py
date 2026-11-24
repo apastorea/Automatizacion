@@ -46,13 +46,16 @@ def configurar_rigol(scope, args):
         scope.write(f":{canal}:BWL 20M")
         scope.write(f":{canal}:SCAL {escala:.9g}")
         scope.write(f":{canal}:OFFS 0")
+    scope.write(":ACQ:TYPE HRES")  # alta resolucion, reduccion de ruido de muestra unica
     scope.write(":TIM:MODE MAIN")
     scope.write(f":TIM:SCAL {args.escala_tiempo:.9g}")
     scope.write(":TIM:OFFS 0")
     scope.write(":TRIG:MODE EDGE")
     scope.write(":TRIG:EDGE:SOUR CHAN1")
     scope.write(":TRIG:EDGE:SLOP POS")
-    scope.write(f":TRIG:EDGE:LEV {args.nivel_trigger:.9g}")
+    nivel = args.nivel_temporizado if args.estrategia == "temporizada" else args.nivel_trigger
+    scope.write(f":TRIG:EDGE:LEV {nivel:.9g}")
+    print(f"RIGOL: estrategia={args.estrategia}; umbral={nivel*1000:.1f} mV; HRES activo.",flush=True)
     scope.write(":TRIG:SWE NORM")
 
 
@@ -117,7 +120,7 @@ def leer_uart_y_armar(uart, scope, args):
                 estado_respaldo = scope.query(":TRIG:STAT?").strip().upper()
                 respaldo_revisado = True
                 if estado_respaldo in ("STOP", "TD"):
-                    print("RIGOL: disparo de flanco detectado; sin TFOR.", flush=True)
+                    print("RIGOL: disparo anterior a la cita temporizada; se preserva la adquisicion.", flush=True)
                 elif (not args.sin_respaldo and
                       estado_respaldo in ("WAIT", "RUN", "AUTO")):
                     scope.write(":TFOR")
@@ -223,13 +226,18 @@ def generar_parser():
     p.add_argument("--escala-ch2", type=float, default=0.02)
     p.add_argument("--escala-tiempo", type=float, default=0.05,
                    help="Segundos/div; 0.05 = 50 ms/div")
+    p.add_argument("--estrategia", choices=("temporizada", "fisica"),
+                   default="temporizada",
+                   help="temporizada: nivel alto y TFOR fijo; fisica: disparo de flanco y respaldo")
+    p.add_argument("--nivel-temporizado", type=float, default=0.085,
+                   help="Umbral alto en modo temporizado para evitar disparos por ruido (V)")
     p.add_argument("--nivel-trigger", type=float, default=0.035,
                    help="Nivel absoluto en voltios; adaptar si cambia el offset")
     p.add_argument("--demora-armado", type=float, default=2.25,
                    help="Segundos después del aviso de inicio (debe ser < 3 s)")
     p.add_argument("--instante-rearme", type=float, default=2.85,
                    help="Rearmar SINGLE si ocurrió un disparo de arranque")
-    p.add_argument("--instante-respaldo", type=float, default=3.15,
+    p.add_argument("--instante-respaldo", type=float, default=3.025,
                    help="Aplicar :TFOR si continúa WAIT a este segundo")
     p.add_argument("--sin-respaldo", action="store_true",
                    help="Usar únicamente disparos físicos, sin :TFOR")
@@ -241,8 +249,14 @@ def generar_parser():
 def main(argv=None):
     args = generar_parser().parse_args(argv)
     if not (0 <= args.demora_armado < args.instante_rearme < 3.0
-            < args.instante_respaldo < 3.5):
-        print("ERROR: requiere armado < rearme < 3s < respaldo < 3.5s.", file=sys.stderr)
+            < args.instante_respaldo < 3.15):
+        print("ERROR: requiere armado < rearme < 3s < respaldo < 3.15s.", file=sys.stderr)
+        return 2
+    if args.estrategia=="temporizada" and args.sin_respaldo:
+        print("ERROR: modo temporizado necesita TFOR; quitar --sin-respaldo.",file=sys.stderr)
+        return 2
+    if args.estrategia=="temporizada" and not (0.0 < args.nivel_temporizado < 5*args.escala_ch1):
+        print("ERROR: nivel-temporizado fuera de +/-5 divisiones CH1.",file=sys.stderr)
         return 2
     if any(v<=0 for v in (args.escala_ch1,args.escala_ch2,args.escala_tiempo,args.timeout)):
         print("ERROR: escalas y timeout deben ser positivos.",file=sys.stderr)
@@ -258,7 +272,9 @@ def main(argv=None):
             "configuracion_rigol": {"ch1_V_div":args.escala_ch1,
                                    "ch2_V_div":args.escala_ch2,
                                    "tiempo_s_div":args.escala_tiempo,
-                                   "trigger_V":args.nivel_trigger,
+                                   "trigger_V":(args.nivel_temporizado if args.estrategia=="temporizada" else args.nivel_trigger),
+                                   "estrategia":args.estrategia,
+                                   "adquisicion":"HRES",
                                    "fuente_trigger":"CHAN1",
                                    "flanco":"POS", "sweep":"NORM",
                                    "trigger_forzado":False,
