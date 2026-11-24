@@ -10,6 +10,7 @@ import re
 import sys
 from datetime import datetime
 from pathlib import Path
+from time import perf_counter
 
 import numpy as np
 import pyvisa
@@ -35,12 +36,10 @@ MEASUREMENT_ITEMS = (
 
 def discover_resource(resource: str | None = None) -> tuple[pyvisa.ResourceManager, str]:
     manager = pyvisa.ResourceManager()
-    resources = manager.list_resources()
     if resource:
-        if resource not in resources:
-            manager.close()
-            raise RuntimeError(f"El recurso VISA indicado no esta disponible: {resource}")
+        # Ahorra el barrido VISA cuando el recurso exacto ya fue identificado.
         return manager, resource
+    resources = manager.list_resources()
 
     candidates = [item for item in resources if RIGOL_VENDOR_ID in item.upper()]
     if len(candidates) != 1:
@@ -210,17 +209,20 @@ def build_parser() -> argparse.ArgumentParser:
     bundle = subparsers.add_parser("bundle", help="Captura PNG, CSV de ambos canales y metadatos.")
     bundle.add_argument("--label", default="lab4")
     bundle.add_argument("--root", type=Path, default=Path("capturas_rigol"))
-    bundle.add_argument("--quick", action="store_true", help="Captura imagen y formas de onda primero, omitiendo mediciones lentas.")
+    bundle.add_argument("--quick", action="store_true", help="Omite consultas lentas; guarda formas de onda visibles de 1200 puntos.")
+    bundle.add_argument("--only", choices=("all", "data", "screen"), default="all",
+                        help="all=PNG+dos CSV; data=solo CSV CH1/CH2; screen=solo PNG. Usar con --quick.")
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
     manager = instrument = None
+    inicio_total = perf_counter()
     try:
         print("Conectando con el Rigol por USB VISA...", flush=True)
         manager, instrument, resource_name = connect(args.resource)
-        print(f"Recurso detectado: {resource_name}", flush=True)
+        print(f"Recurso detectado: {resource_name} | conexion {perf_counter()-inicio_total:.2f} s", flush=True)
         metadata = (
             {
                 "timestamp_local": datetime.now().astimezone().isoformat(timespec="seconds"),
@@ -251,23 +253,30 @@ def main() -> int:
             folder = timestamped_folder(args.root.resolve(), args.label)
             folder.mkdir(parents=True, exist_ok=False)
             print(f"Carpeta de captura: {folder}", flush=True)
-            print("Descargando imagen de pantalla...", flush=True)
-            save_screenshot(instrument, folder / "pantalla.png")
-            print("Pantalla guardada: pantalla.png", flush=True)
-            waveform_info = {}
-            for channel in ("CHAN1", "CHAN2"):
-                print(f"Descargando forma de onda {channel}...", flush=True)
-                time_s, voltage_v, info = acquire_screen_waveform(instrument, channel)
-                save_waveform_csv(folder / f"{channel.lower()}.csv", time_s, voltage_v)
-                waveform_info[channel] = info
-                print(f"{channel}: {len(time_s)} puntos guardados.", flush=True)
-            metadata["waveforms"] = waveform_info
+            metadata["capture_selection"] = args.only
+            metadata["waveforms"] = {}
+            if args.only in ("all", "screen"):
+                inicio = perf_counter()
+                print("Descargando imagen de pantalla...", flush=True)
+                save_screenshot(instrument, folder / "pantalla.png")
+                print(f"Pantalla guardada: pantalla.png ({perf_counter()-inicio:.2f} s)", flush=True)
+            if args.only in ("all", "data"):
+                for channel in ("CHAN1", "CHAN2"):
+                    inicio = perf_counter()
+                    print(f"Descargando forma de onda {channel}...", flush=True)
+                    time_s, voltage_v, info = acquire_screen_waveform(instrument, channel)
+                    save_waveform_csv(folder / f"{channel.lower()}.csv", time_s, voltage_v)
+                    metadata["waveforms"][channel] = info
+                    print(f"{channel}: {len(time_s)} puntos ({perf_counter()-inicio:.2f} s)", flush=True)
             if not args.quick:
                 print("Consultando mediciones y diagnostico SCPI...", flush=True)
+                inicio = perf_counter()
                 metadata["measurements"] = collect_measurements(instrument)
                 metadata["system_errors_after_capture"] = drain_system_errors(instrument)
+                print(f"Consultas adicionales: {perf_counter()-inicio:.2f} s", flush=True)
+            metadata["elapsed_seconds"] = round(perf_counter()-inicio_total, 3)
             save_json(folder / "metadatos.json", metadata)
-            print(f"CAPTURA COMPLETA: {folder}", flush=True)
+            print(f"CAPTURA COMPLETA en {metadata['elapsed_seconds']:.2f} s: {folder}", flush=True)
 
         return 0
     except Exception as exc:
