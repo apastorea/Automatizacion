@@ -87,3 +87,14 @@
 - Dispositivo `PSoC 5LP CY8C5888LTI-LP097` programado y verificado correctamente, reportado a las 21:55:43 (hora en captura).
 - Se añadió script `capturar_uart_monitor_lab7.m` para captura de COM4 a 57600, sin activar hardware ni lazo cerrado.
 - Siguiente verificación pendiente: captura de UART con encabezado MONITOR y medición posterior del periodo real; el éxito de Flash NO prueba el comportamiento analógico ni la adquisición.
+
+## 2026-11-23 — Primera captura UART real en MONITOR: parada segura tras una muestra
+
+- Captura MATLAB `capturar_uart_monitor_lab7.m` realizada por el estudiante, guardada localmente en `04_Ensayos/Monitor_UART_20261123_220453/` (evidencia aún no publicada).
+- Cabecera `modo=MONITOR`, `Ts_nominal_us=2000`, calibración histórica SI, modelo nominal NO_VALIDADO; puerto COM4 a 57600 8N1.
+- Registro `k=0`: ADC 522 cuentas; `adc_mV=594`, `y_cal_mV=-8371`, `y_rel_mV=-8371`, `r=0`, `u_solicitada=0`, `u_nominal=0`, `dac_pos=0`, `dac_neg=0`, `cpu_us=45`, `intervalo_us=0`, `flags=32`.
+- Código `Lab7.cydsn/main.c`: `F_Y=32` se enciende cuando `salida_rel_V` supera en módulo `LAB7_Y_FALLO_V=0.500 V`; cualquier bandera activa `detener_seguro()`, por lo que se conserva una sola muestra y se emite `# LAB7 END; DAC=0`.
+- La tensión -8.371 V es `(0.594-2.353802067)/0.210251951`, valor **calculado por calibración heredada**, no tensión medida con Rigol sobre la salida de planta.
+- Si J9 está desconectado, o si el acondicionador no está energizado, la señal ADC carece de validez física; no diagnosticar falla PSoC con esta lectura.
+- El ciclo de 45 us de una ISR y `intervalo_us=0` para k=0 NO validan periodicidad de 2 ms.
+- Próximo ensayo: verificar alimentaciones y rango de tensión en J9 con multímetro, restituir J9-P0[2] con fuentes apagadas, y repetir MONITOR manteniendo J8-J5 aislado.
