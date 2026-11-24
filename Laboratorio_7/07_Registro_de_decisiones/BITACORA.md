@@ -120,3 +120,11 @@
 - Muestras finales: k=254 t_us=508000, adc_mV=2355, y_rel=1mV, cpu_us=45, intervalo_us=2001, flags=0; k=255 t_us=509999, adc_mV=2355, y_rel=1mV, cpu_us=46, intervalo_us=1999, flags=0.
 - El script guardó `Lab7_UART_20261123_225357/uart_bruto.txt` y `monitor_lab7.csv` **solo en la PC del usuario**. Aún no están disponibles como adjuntos ni en GitHub para verificar las muestras intermedias.
 - El bloqueo previo con flags=32 ya no se manifestó; la señal del ADC se estabilizó cerca del offset histórico. No afirmar todavía ganancia de planta ni respuesta al escalón: falta verificar `u_solicitada` en k32..127 y capturar físicamente CH1=J5, CH2=J7 con Rigol.
+
+## 2026-11-23 — Primer pulso en lazo abierto adquirido y graficado en MATLAB
+
+- El usuario compartió nueva captura UART en modo `ABIERTO`: 256 filas, `flags=0` en muestras inicial/final; `adc_mV=2355` y `y_rel_mV=5` en k=0 y k=255, `intervalo_us=1999` en k255.
+- Figura `Lab7 - Ensayo experimental abierto`: pulso solicitado 50mV; nominal DAC ~46mV; comienza ~64ms y termina ~256ms. Salida `y_rel` aumenta de ~5mV a ~44mV y regresa a ~1mV tras el pulso, con saltos de ~5mV por cuantización probable.
+- Aproximación visual: Delta y ~39mV; Delta u nominal ~46.1mV; K aparente ~0.85. No es una identificación de ganancia física de planta (falta CH1=J5).
+- Se prepara script `analizar_escalon_abierto_lab7.m` con tabla y contraste frente al modelo nominal y al identificado Lab5, sin reajustar calibraciones.
+- Pendiente urgente: captura simultánea Rigol J5/J7 durante un solo escalón y evaluar consistencia para desbloquear observador E1. No volver a barrido largo de calibración.
