@@ -186,3 +186,13 @@
 - Nueva captura Lab7 desde `chan1(6).csv`/`chan2(6).csv`: CH1≈3.00mV, CH2≈11.57mV sobre meseta 65–180ms; CH2 aproximadamente doble de la referencia. No concluir causa física exacta: modos distintos y datos NORM 1200 puntos; diferencias incluyen condiciones de adquisición.
 - Se ajusta script Python Lab7: por defecto CH1=50mV/div, CH2=20mV/div, sin resetear OFFS vertical; se permite separación visual manual sin tocar valores físicos.
 - Siguiente discriminación: CH2 a GND cerca de PCB con clip a GND, verificar si la dispersión procede de sonda/masa o del nodo J7; después reconectar con alimentación apagada.
+
+## 2026-11-24 00:59 — Ensayo abierto real válido al restablecer alimentación analógica
+
+- Durante ensayo anterior (00:57) la fuente analógica estaba apagada por olvido; UART se detuvo en k=0 con ADC=586mV, y_cal=-8409mV, flags=32. Rigol tuvo 0 puntos por canal y quedó WAIT; el error no era de sincronización sino falta de alimentación.
+- Al conectar fuente, el usuario aportó `pantalla(7).png`, `chan1(8).csv`, `chan2(8).csv`, `psoc_uart(4).csv`, `psoc_uart(4).txt`, `metadatos(8).json`. Archivos crudos aún permanecen en conversación y deben conservarse en carpeta del ensayo para trazabilidad.
+- Rigol: HRES, t=−0.3..+0.2995s (0.5ms/punto), CH1 50mV/div (J5), CH2 20mV/div (J7), base 50ms/div, `:TFOR` a 3.0312 s del aviso UART. Se detecta pulso sostenido ~193.5ms y excursion robusta CH1=45.524mV.
+- Estadísticos independientes calculados de CSV: reposo [−240,−80] ms y meseta [+70,+160] ms, referidos al trigger: CH1 media 15.175mV→60.298mV (delta +45.123mV, ruido RMS pre 3.282mV, meseta 3.380mV); CH2 media 11.7025mV→56.115mV (delta +44.412mV, ruido RMS pre 11.150mV, meseta 10.371mV). Ganancia aparente física K=0.984245, desviación −3.37% frente a K_nominal=1.0185604.
+- UART: 256 muestras, Ts mediana 2000us, intervalos 1999..2001us, tiempo máximo CPU=55us, 96 muestras con mando solicitado 50mV, ninguna bandera distinta de 0; el CSV nominal indica 46mV DAC durante el pulso.
+- Metadatos: `ensayo_valido_preliminar=true`, pulso detectado, `disparo_forzado=true`, `trigger_fisico_confirmado=false`; esto es correcto y **no invalida** la respuesta física: el osciloscopio usó disparo SCPI temporizado y sí detectamos un pulso en CSV.
+- Pendiente: validar dinámica mediante ajuste/contraste de modelos nominal e identificado Lab5 con desfase instrumental estimado; la señal CH2 continúa más ruidosa (~10-11mV RMS), aunque el promedio por meseta permite medir amplitud con cautela. No activar lazo cerrado hasta validar el observador y condiciones previstas.
