@@ -162,3 +162,12 @@
 - Capturador previo etiquetaba trigger_fisico_confirmado=true solo por estado STOP, aunque el propio validador preliminar decía false. Se corrigió en \`lab7_ensayo_sincronizado.py\`: separar \`rigol_finalizo_single\` de \`pulso_ch1_detectado\` y exigir pulso robusto >=20mV además de STOP.
 - Esta captura sirve para validar telemetría y automatización de adquisición, pero **NO** para cálculo de ganancia física ni comparación dinámica con Rigol. Existe una captura anterior de CSV CH1/CH2 con pulso físico ~44.59/44.72mV y ganancia preliminar ~1.003, más apropiada para el ensayo de planta.
 - Siguiente intento opcional, sin cambiar firmware, con umbral 45mV y armado a 2.0s del aviso de inicio para evitar transitorios: \`python -u .../lab7_ensayo_sincronizado.py --modo-esperado ABIERTO --label abierto_trigger45 --nivel-trigger 0.045 --demora-armado 2.0\`.
+
+## 2026-11-24 — Captura Lab7 mejorada con respaldo temporizado Lab5
+
+- Actualizado `Herramientas_Comunes/Rigol_y_UART/lab7_ensayo_sincronizado.py` para combinar flanco físico con `:TFOR` programado si el Rigol aún espera.
+- Sincronía con `# LAB7 inicio;`: armar `:SING` a t≈2.25 s; revisar falso `STOP` y rearmar a t≈2.85 s; aplicar un único `:TFOR` a t≈3.15 s solo si estado `WAIT`, `RUN` o `AUTO` (no si `STOP` o `TD`).
+- Marca `configuracion_rigol.trigger_forzado` y `sincronizacion.disparo_forzado` cuando se usa respaldo. El disparo forzado no implica que haya existido respuesta física; la validación de ABIERTO exige pulso en CH1 de al menos 20mV sostenido por 100ms y 256 filas UART sin banderas, con modo coincidente.
+- Archivo `capturar_lab7_sincronizado.cmd` conserva recurso VISA exacto del Rigol y usa los tiempos del disparo de respaldo.
+- Pruebas fuera de línea: datos CH1 de una captura previa con escalón real reconocidos (≈45.2mV de excursión, ≈194ms de meseta); captura posterior sin escalón descartada (≈0.99mV de excursión filtrada). Simulación UART/Rigol comprobó escenario con disparo físico (0 comandos TFOR) y sin disparo físico (1 TFOR). **La versión corregida todavía requiere prueba en instrumento real.**
+- Todos los componentes Lab5 permanecen sin cambios, y el firmware Lab7 mantiene sus protecciones. El nuevo capturador es software anfitrión.
