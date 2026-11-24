@@ -70,3 +70,12 @@
 - Actual E2: pico 57.809070mV, Mp 15.618140%, tp 20ms, ts2 46ms, max mando 99.080638mV.
 - Convergencia error <1e-4 persistente: P-E1 14ms, A-E1 14ms, P-E2 10ms, A-E2 8ms.
 - Todas las cifras son simulaciones nominales, todavía no resultados físicos; no programar el PSoC con estos parámetros sin validación.
+
+## 2026-11-24 — Identificación del Rigol por SCPI (comprobación de banco)
+
+- Inspección física inicial de la PCB del Laboratorio 5 reutilizada en Lab7: el usuario informa que la completó. Continuidad/aislamiento y tensiones no se consignaron numéricamente.
+- MATLAB R2026b detectó `USB0::0x1AB1::0x0517::DS1ZE275014864::0::INSTR` mediante `visadevlist`, junto a `ASRL4::INSTR` (COM4).
+- Ejecutó `writeread(rigol,"*IDN?")` y el Rigol respondió `RIGOL TECHNOLOGIES,DS1202Z-E,DS1ZE275014864,00.06.04` sin error; después ejecutó `clear rigol`.
+- Comunicación USB-TMC / VISA / SCPI confirmada con el mismo número de serie y firmware que la configuración de Lab5. Todavía NO se han realizado mediciones de tensión/corriente de la PCB.
+- Atención: el archivo histórico `Laboratorio_5/PSoC_5LP/Lab5.cydsn/lab5_experiment.h` define `LAB5_MODE=LAB5_MODE_CONTROL`; no supone el firmware cargado físicamente, ni habilita a energizar sin verificar su modo real.
+- Próximo paso: comprobar fuentes de alimentación con la placa desenergizada, confirmar ausencia de control activo y luego medir en reposo con instrumentación.
