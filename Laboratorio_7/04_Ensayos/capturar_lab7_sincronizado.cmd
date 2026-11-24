@@ -16,7 +16,7 @@ if /i "%NOMBRE%"=="pred_E1" set "MODO=PREDICCION"
 if /i "%NOMBRE%"=="pred_E2" set "MODO=PREDICCION"
 if /i "%NOMBRE%"=="actual_E1" set "MODO=ACTUAL"
 if /i "%NOMBRE%"=="actual_E2" set "MODO=ACTUAL"
-python -u ".\Herramientas_Comunes\Rigol_y_UART\lab7_ensayo_sincronizado.py" --modo-esperado "%MODO%" --label "%NOMBRE%"
+python -u ".\Herramientas_Comunes\Rigol_y_UART\lab7_ensayo_sincronizado.py" --resource "USB0::0x1AB1::0x0517::DS1ZE275014864::INSTR" --modo-esperado "%MODO%" --label "%NOMBRE%"
 if errorlevel 1 (
  echo.
  echo Error o captura incompleta. Ver mensajes y metadatos.json.
