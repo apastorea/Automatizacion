@@ -171,3 +171,11 @@
 - Archivo `capturar_lab7_sincronizado.cmd` conserva recurso VISA exacto del Rigol y usa los tiempos del disparo de respaldo.
 - Pruebas fuera de línea: datos CH1 de una captura previa con escalón real reconocidos (≈45.2mV de excursión, ≈194ms de meseta); captura posterior sin escalón descartada (≈0.99mV de excursión filtrada). Simulación UART/Rigol comprobó escenario con disparo físico (0 comandos TFOR) y sin disparo físico (1 TFOR). **La versión corregida todavía requiere prueba en instrumento real.**
 - Todos los componentes Lab5 permanecen sin cambios, y el firmware Lab7 mantiene sus protecciones. El nuevo capturador es software anfitrión.
+
+## 2026-11-24 — Diagnóstico instrumentación: PSoC y Rigol capturan eventos distintos
+
+- Nuevos CSV aportados: `chan1(5).csv`, `chan2(5).csv`, `psoc_uart(1).csv`, `metadatos(5).json` y captura `pantalla(4).png`.
+- PSoC: 256 muestras, Ts mediana 2000us, CPU máxima 55us, 96 muestras con `u_solicitada_mV=50`, nominal DAC 46mV, flags=0, y_rel alcanza alrededor de 44mV.
+- Rigol: 1200 puntos por canal, 0.5ms/punto; CH1 mediana 15.6mV, mínimo10.4mV, máximo20.8mV, NO hay pulso sostenido; CH2 promedio11.886mV, min -6.4mV, max30.4mV, ruido. En metadata `estado_rearme=WAIT`, `estado_antes_respaldo=STOP`, `disparo_forzado=false`, `pulso_detectado=false`.
+- Diagnóstico: bajo trigger CH1=35mV, adquisición terminó sin mostrar el escalón. Sospecha de disparo espurio o ventana distinta al pulso, no demostración de desfasaje fijo. No etiquetar esta captura como respuesta física.
+- Cambio: estrategia por defecto `temporizada`: CH1 trigger 85mV (dentro de ±5div a 20mV/div), HRES, SINGLE t≈2.25s, rearme t≈2.85s, TFOR t≈3.025s para registrar evento previsto 3.064..3.256s. Se conservan el modo `fisica` y los metadatos/flags de seguridad. **Pendiente probar en el Rigol real.**
