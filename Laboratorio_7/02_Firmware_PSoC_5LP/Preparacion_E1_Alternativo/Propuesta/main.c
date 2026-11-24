@@ -238,10 +238,16 @@ static void volcar_uart(void)
         "ACTUAL"
 #endif
         "\r\n");
-    /* Identificar explicitamente la variante, sin cambiar cabecera CSV. */
+    /* Identificar E1 alternativo o E2 original segun la variante
+     * compilada; no modificar el formato de las filas CSV.
+     */
     UART_Debug_PutString(
-        "# LAB7 diseno_E1=ALT_Z035_J010 limite_DAC_codigo=SI "
-        "firmware=PROPUESTA_NO_VALIDADA\r\n");
+#if LAB7_ESTIMADOR_VARIANTE == 1u
+        "# LAB7 diseno_E1=ALT_Z035_J010 "
+#else
+        "# LAB7 diseno_E2=ORIG_Z020_J010 "
+#endif
+        "limite_DAC_codigo=SI firmware=PROPUESTA_NO_VALIDADA\r\n");
     UART_Debug_PutString(
         "k,t_us,adc_counts,adc_mV,y_cal_mV,y_rel_mV,r_mV,"
         "u_solicitada_mV,u_nominal_mV,xhat1_mV,xhat2_mV,"
