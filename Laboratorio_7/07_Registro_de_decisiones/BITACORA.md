@@ -179,3 +179,10 @@
 - Rigol: 1200 puntos por canal, 0.5ms/punto; CH1 mediana 15.6mV, mínimo10.4mV, máximo20.8mV, NO hay pulso sostenido; CH2 promedio11.886mV, min -6.4mV, max30.4mV, ruido. En metadata `estado_rearme=WAIT`, `estado_antes_respaldo=STOP`, `disparo_forzado=false`, `pulso_detectado=false`.
 - Diagnóstico: bajo trigger CH1=35mV, adquisición terminó sin mostrar el escalón. Sospecha de disparo espurio o ventana distinta al pulso, no demostración de desfasaje fijo. No etiquetar esta captura como respuesta física.
 - Cambio: estrategia por defecto `temporizada`: CH1 trigger 85mV (dentro de ±5div a 20mV/div), HRES, SINGLE t≈2.25s, rearme t≈2.85s, TFOR t≈3.025s para registrar evento previsto 3.064..3.256s. Se conservan el modo `fisica` y los metadatos/flags de seguridad. **Pendiente probar en el Rigol real.**
+
+## 2026-11-24 — Comparación real de ruido Lab5 contra Lab7
+
+- Referencia Lab5 en el repositorio: ensayo `lab5_identificado_TS1_deadbeat_50mV_zerocorr_final_20261121_175752`, CH1/CH2 CSV, ventana 40–80ms. Desviación estándar CH1≈8.44mV, CH2≈5.79mV. Ajustes Lab5: CH1 50mV/div, CH2 20mV/div, BW20M, HRES.
+- Nueva captura Lab7 desde `chan1(6).csv`/`chan2(6).csv`: CH1≈3.00mV, CH2≈11.57mV sobre meseta 65–180ms; CH2 aproximadamente doble de la referencia. No concluir causa física exacta: modos distintos y datos NORM 1200 puntos; diferencias incluyen condiciones de adquisición.
+- Se ajusta script Python Lab7: por defecto CH1=50mV/div, CH2=20mV/div, sin resetear OFFS vertical; se permite separación visual manual sin tocar valores físicos.
+- Siguiente discriminación: CH2 a GND cerca de PCB con clip a GND, verificar si la dispersión procede de sonda/masa o del nodo J7; después reconectar con alimentación apagada.
